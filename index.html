@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru" class="dark" data-tab="hero">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -7,6 +7,36 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>The Binding of Isaac: Repentance+ — Guide &amp; Tracker</title>
+  <!-- Синхронная предзагрузка активной вкладки и языка до отрисовки body (0ms без скачков) -->
+  <script>
+    (function () {
+      var validTabs = ['hero', 'floors', 'rooms', 'codex', 'secrets', 'bosses'];
+      var savedTab = 'hero';
+      var savedLang = '';
+      try {
+        var raw = window.localStorage.getItem('isaac_repentance_plus_obsidian_v6') || window.localStorage.getItem('isaac_repentance_plus_obsidian_v5');
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && validTabs.indexOf(parsed.activeTab) !== -1) {
+            savedTab = parsed.activeTab;
+          }
+          if (parsed && (parsed.lang === 'ru' || parsed.lang === 'en')) {
+            savedLang = parsed.lang;
+          }
+        }
+      } catch (e) {}
+      if (!savedLang) {
+        try {
+          var sys = (navigator.language || navigator.userLanguage || 'ru').toLowerCase();
+          savedLang = sys.indexOf('ru') === 0 ? 'ru' : 'en';
+        } catch (e) {
+          savedLang = 'ru';
+        }
+      }
+      document.documentElement.setAttribute('data-tab', savedTab);
+      document.documentElement.lang = savedLang;
+    })();
+  </script>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Cinzel, Inter, JetBrains Mono -->
@@ -84,7 +114,7 @@
       -webkit-text-size-adjust: 100%;
     }
 
-    /* Внешняя оболочка приложения: 100dvh на мобильных и узком Canvas, дашборд на широком ПК */
+    /* Внешняя оболочка приложения: скрыта до первичной синхронной инициализации, чтобы не было мигания стилей */
     #app-shell {
       width: 100%;
       max-width: 560px;
@@ -98,6 +128,12 @@
       border-left: 1px solid #2c2c36;
       border-right: 1px solid #2c2c36;
       position: relative;
+      opacity: 0;
+    }
+
+    html.app-ready #app-shell {
+      opacity: 1;
+      transition: opacity 0.12s ease-out;
     }
 
     /* Шапка с учетом выреза камеры сверху, скругленных углов и системной кнопки X */
@@ -124,7 +160,7 @@
       overflow: hidden;
     }
 
-    /* Каждая вкладка имеет свой независимый скролл-контейнер */
+    /* Каждая вкладка имеет свой независимый скролл-контейнер и управляется атрибутом html[data-tab] с 0мс */
     .tab-panel {
       position: absolute;
       inset: 0;
@@ -136,10 +172,16 @@
       padding-bottom: 84px;
       padding-left: max(14px, env(safe-area-inset-left, 0px));
       padding-right: max(14px, env(safe-area-inset-right, 0px));
+      display: none;
     }
 
-    .tab-panel.hidden {
-      display: none;
+    html[data-tab="hero"] #tab-hero,
+    html[data-tab="floors"] #tab-floors,
+    html[data-tab="rooms"] #tab-rooms,
+    html[data-tab="codex"] #tab-codex,
+    html[data-tab="secrets"] #tab-secrets,
+    html[data-tab="bosses"] #tab-bosses {
+      display: block;
     }
 
     button, select, input, .no-select {
@@ -306,7 +348,12 @@
       transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
     }
 
-    .dock-btn.active {
+    html[data-tab="hero"] .dock-btn[data-tab="hero"],
+    html[data-tab="floors"] .dock-btn[data-tab="floors"],
+    html[data-tab="rooms"] .dock-btn[data-tab="rooms"],
+    html[data-tab="codex"] .dock-btn[data-tab="codex"],
+    html[data-tab="secrets"] .dock-btn[data-tab="secrets"],
+    html[data-tab="bosses"] .dock-btn[data-tab="bosses"] {
       color: #ede6d8;
       background-color: rgba(201, 74, 74, 0.18);
       border-color: rgba(201, 74, 74, 0.65);
@@ -320,7 +367,12 @@
       justify-content: center;
     }
 
-    .dock-btn.active .dock-icon {
+    html[data-tab="hero"] .dock-btn[data-tab="hero"] .dock-icon,
+    html[data-tab="floors"] .dock-btn[data-tab="floors"] .dock-icon,
+    html[data-tab="rooms"] .dock-btn[data-tab="rooms"] .dock-icon,
+    html[data-tab="codex"] .dock-btn[data-tab="codex"] .dock-icon,
+    html[data-tab="secrets"] .dock-btn[data-tab="secrets"] .dock-icon,
+    html[data-tab="bosses"] .dock-btn[data-tab="bosses"] .dock-icon {
       color: #bfa168;
     }
 
@@ -542,10 +594,10 @@
       <!-- ВКЛАДКА 1: ГЕРОЙ (POST-IT NOTE, 6 ОПТИМАЛЬНЫХ ЗАБЕГОВ, СХЕМА)        -->
       <!-- =================================================================== -->
       <section id="tab-hero" class="tab-panel lg:overflow-hidden lg:pb-5">
-        <div class="grid grid-cols-1 lg:grid-cols-[410px_1fr] gap-3.5 lg:gap-4 items-start lg:h-full">
+        <div class="grid grid-cols-1 lg:grid-cols-[410px_1fr] gap-3.5 lg:gap-4 items-start lg:h-full min-h-0">
 
           <!-- Левая колонка (Персонаж + Пергамент, статична на ПК при любом скролле) -->
-          <div id="hero-left-col" class="space-y-3.5 lg:h-full lg:overflow-y-auto no-scrollbar">
+          <div id="hero-left-col" class="space-y-3.5 lg:h-full lg:overflow-y-auto no-scrollbar min-h-0">
             <div class="bg-isaac-card border border-isaac-border rounded-2xl p-3 space-y-2.5 no-select">
               <div class="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-isaac-bg border border-isaac-border">
                 <button id="btn-pool-normal" type="button" onclick="switchCharPool('normal')"
@@ -613,7 +665,7 @@
           </div>
 
           <!-- Правая колонка (6 забегов + Схема ветвления, независимый скролл на ПК) -->
-          <div id="hero-right-col" class="space-y-3.5 lg:h-full lg:overflow-y-auto lg:pr-1.5 lg:pb-20">
+          <div id="hero-right-col" class="space-y-3.5 lg:h-full lg:overflow-y-auto lg:pr-1.5 lg:pb-20 min-h-0">
             <div class="bg-isaac-card border border-isaac-border rounded-2xl p-3.5 space-y-2.5 no-select">
               <div>
                 <h2 id="lbl-runs-title" class="text-sm font-bold text-isaac-text">6 оптимальных забегов для закрытия листа</h2>
@@ -727,7 +779,7 @@
       <!-- =================================================================== -->
       <!-- ВКЛАДКА 2: ЭТАЖИ (ГЛАВЫ 1–6, АЛЬТ-ПУТЬ, ФИНАЛЫ, VOID И 7 ПРОКЛЯТИЙ)  -->
       <!-- =================================================================== -->
-      <section id="tab-floors" class="tab-panel hidden space-y-3.5">
+      <section id="tab-floors" class="tab-panel space-y-3.5">
         <div class="space-y-2 no-select">
           <div class="flex items-center justify-between px-0.5">
             <div>
@@ -745,7 +797,7 @@
       <!-- =================================================================== -->
       <!-- ВКЛАДКА 3: КОМНАТЫ (16 ТИПОВ КОМНАТ + КАЛЬКУЛЯТОРЫ)                  -->
       <!-- =================================================================== -->
-      <section id="tab-rooms" class="tab-panel hidden space-y-3.5">
+      <section id="tab-rooms" class="tab-panel space-y-3.5">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 no-select">
           <!-- Калькулятор Планетария -->
           <div class="bg-isaac-card border border-isaac-border rounded-2xl p-3.5 space-y-3">
@@ -836,7 +888,7 @@
       <!-- =================================================================== -->
       <!-- ВКЛАДКА 4: КОДЕКС (ВСЕ КАРТЫ, РУНЫ, ПИЛЮЛИ, БРЕЛКИ, ВЕЩИ, МЕХАНИКИ) -->
       <!-- =================================================================== -->
-      <section id="tab-codex" class="tab-panel hidden space-y-3.5">
+      <section id="tab-codex" class="tab-panel space-y-3.5">
         <div class="bg-isaac-card border border-isaac-border rounded-2xl p-3.5 space-y-2.5 no-select">
           <div class="flex items-center justify-between gap-2">
             <div>
@@ -878,7 +930,7 @@
       <!-- =================================================================== -->
       <!-- ВКЛАДКА 5: АЧИВКИ (ПОЛНЫЙ КАТАЛОГ ВСЕХ 641 СЕКРЕТОВ REPENTANCE+)    -->
       <!-- =================================================================== -->
-      <section id="tab-secrets" class="tab-panel hidden space-y-3.5">
+      <section id="tab-secrets" class="tab-panel space-y-3.5">
         <div class="bg-isaac-card border border-isaac-border rounded-2xl p-3.5 space-y-2.5 no-select">
           <div class="flex items-center justify-between gap-2">
             <div>
@@ -930,7 +982,7 @@
       <!-- =================================================================== -->
       <!-- ВКЛАДКА 6: БОССЫ (ПРАВИЛА БОЯ И ТАКТИКА ПРОТИВ ФИНАЛЬНЫХ БОССОВ)     -->
       <!-- =================================================================== -->
-      <section id="tab-bosses" class="tab-panel hidden space-y-3.5">
+      <section id="tab-bosses" class="tab-panel space-y-3.5">
         <div class="bg-isaac-card border border-isaac-border rounded-2xl p-3.5 space-y-2.5">
           <h2 id="lbl-combat-title" class="text-sm md:text-base font-bold text-isaac-text">4 главных правила выживания в бою</h2>
           <div id="combat-rules-list" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
@@ -949,7 +1001,7 @@
 
     <!-- 3. НИЖНЕЕ ДОК-МЕНЮ (МОБ) / БОКОВАЯ ПАНЕЛЬ (ПК): 6 ВКЛАДОК -->
     <nav id="bottom-dock" class="no-select">
-      <button type="button" onclick="handleDockClick('hero')" data-tab="hero" class="dock-btn active">
+      <button type="button" onclick="handleDockClick('hero')" data-tab="hero" class="dock-btn">
         <span class="dock-icon">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="4" y="3" width="16" height="18" rx="2"/>
@@ -1172,8 +1224,8 @@
     }
 
     let appState = {
-      lang: detectSystemLang(),
-      activeTab: 'hero',
+      lang: document.documentElement.lang === 'en' ? 'en' : detectSystemLang(),
+      activeTab: document.documentElement.getAttribute('data-tab') || 'hero',
       charPool: 'normal',
       selectedChar: 'isaac',
       selectedRun: 1,
@@ -3394,6 +3446,9 @@
       if (!appState.secretsRenderLimit || appState.secretsRenderLimit < 60) appState.secretsRenderLimit = 60;
       if (!appState.floorChecklist || typeof appState.floorChecklist !== 'object') appState.floorChecklist = {};
 
+      document.documentElement.setAttribute('data-tab', appState.activeTab);
+      document.documentElement.lang = appState.lang;
+
       // Автоматический импорт прогресса из URL-ссылки (#save=ISAAC1:...)
       try {
         const hash = window.location.hash || '';
@@ -3421,7 +3476,6 @@
     // 8.1 СИНХРОНИЗАЦИЯ ПК ↔ ТЕЛЕФОН (BITSET CODE, URL HASH, JSON & STEAM .DAT)
     // =========================================================================
     function encodeProgressCode() {
-      // Упаковываем 408 меток (51 байт) + 641 секретов (81 байт) = 132 байта в Base64URL
       const totalBits = 408 + 641;
       const bytes = new Uint8Array(Math.ceil(totalBits / 8));
       let bitIdx = 0;
@@ -3605,7 +3659,6 @@
           const buf = reader.result;
           const view = new DataView(buf);
           const bytes = new Uint8Array(buf);
-          // Формат Isaac Save: 16 байт заголовок + 4 байта CRC + блоки [type:int32, size:int32, count:int32, data...]
           let offset = 20;
           let foundAchievements = false;
 
@@ -3623,7 +3676,6 @@
                   nextSecrets[s] = true;
                 }
               }
-              // Обратная синхронизация открытых секретов в 408 меток на листках персонажей
               const nextMarks = {};
               ALL_CHARACTERS.forEach(c => {
                 const list = [];
@@ -3668,9 +3720,8 @@
     }
 
     function saveActiveScroll() {
-      const panel = document.getElementById(`tab-${appState.activeTab}`);
       const scroller = getScrollContainer(appState.activeTab);
-      if (panel && scroller && !panel.classList.contains('hidden')) {
+      if (scroller && document.documentElement.getAttribute('data-tab') === appState.activeTab) {
         appState.scrollPositions[appState.activeTab] = Math.round(scroller.scrollTop);
       }
     }
@@ -3682,6 +3733,9 @@
       scroller.scrollTop = savedY;
       requestAnimationFrame(() => {
         scroller.scrollTop = savedY;
+        requestAnimationFrame(() => {
+          scroller.scrollTop = savedY;
+        });
       });
     }
 
@@ -3710,8 +3764,7 @@
       const bindScroller = (tabId, el) => {
         if (!el) return;
         el.addEventListener('scroll', () => {
-          const panel = document.getElementById(`tab-${tabId}`);
-          if (!panel || panel.classList.contains('hidden')) return;
+          if (document.documentElement.getAttribute('data-tab') !== tabId) return;
           if (getScrollContainer(tabId) !== el) return;
 
           const st = Math.round(el.scrollTop);
@@ -3957,9 +4010,6 @@
     function handleDockClick(tabId) {
       if (!VALID_TABS.includes(tabId)) return;
 
-      const targetPanel = document.getElementById(`tab-${tabId}`);
-      if (!targetPanel) return;
-
       if (appState.activeTab === tabId) {
         scrollToActiveTop();
         return;
@@ -3968,18 +4018,8 @@
       saveActiveScroll();
 
       appState.activeTab = tabId;
+      document.documentElement.setAttribute('data-tab', tabId);
       saveState();
-
-      VALID_TABS.forEach(id => {
-        const panel = document.getElementById(`tab-${id}`);
-        if (panel) {
-          panel.classList.toggle('hidden', id !== tabId);
-        }
-      });
-
-      document.querySelectorAll('.dock-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tabId);
-      });
 
       setScrollTopVisible(false);
       restoreTabScroll(tabId);
@@ -4895,7 +4935,7 @@
     }
 
     // =========================================================================
-    // 17. ПОЛНЫЙ РЕНДЕР И ТРОЙНАЯ ИНИЦИАЛИЗАЦИЯ (CANVAS ПК + МОБ + ОФЛАЙН)
+    // 17. СИНХРОННЫЙ ЗАПУСК ДО ПЕРВОЙ ОТРИСОВКИ КАДРА (ZERO FOUC / ZERO JUMP)
     // =========================================================================
     function renderAllSections() {
       renderCharacterBar();
@@ -4955,33 +4995,31 @@
         renderAllSections();
 
         const initialTab = appState.activeTab || 'hero';
-        VALID_TABS.forEach(id => {
-          const panel = document.getElementById(`tab-${id}`);
-          if (panel) {
-            panel.classList.toggle('hidden', id !== initialTab);
-          }
-        });
-        document.querySelectorAll('.dock-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.tab === initialTab);
-        });
+        document.documentElement.setAttribute('data-tab', initialTab);
 
         attachScrollListeners();
         restoreTabScroll(initialTab);
+
+        // Плавно проявляем интерфейс после того, как Tailwind сгенерирует стили в следующий кадр
+        requestAnimationFrame(() => {
+          restoreTabScroll(initialTab);
+          document.documentElement.classList.add('app-ready');
+          requestAnimationFrame(() => {
+            restoreTabScroll(initialTab);
+          });
+        });
 
         if (window._importedFromHashOnBoot) {
           showToast(T('toastSyncLoaded'));
         }
       } catch (err) {
         console.error('Isaac Companion boot error:', err);
+        document.documentElement.classList.add('app-ready');
       }
     }
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', bootApp);
-    } else {
-      bootApp();
-    }
-    window.addEventListener('load', bootApp);
+    // Немедленный синхронный запуск в конце body (DOM уже готов, первый кадр еще не отрисован)
+    bootApp();
   </script>
 </body>
 </html>
