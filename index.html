@@ -478,12 +478,48 @@
       </div>
 
       <div class="shrink-0 flex items-center gap-1.5 md:gap-2.5">
-        <!-- Переключатель языка RU / EN -->
-        <button id="lang-toggle-btn" type="button" onclick="toggleLanguage()"
-          class="h-7 md:h-8 px-2.5 rounded-lg bg-isaac-card border border-isaac-gold/45 hover:border-isaac-gold font-mono text-[10.5px] md:text-[11px] font-extrabold text-isaac-gold flex items-center gap-1 transition-colors"
-          title="Switch language / Сменить язык">
-          <span id="lang-toggle-label">RU</span>
+        <!-- Кнопка синхронизации прогресса ПК ↔ Телефон -->
+        <button id="btn-open-sync" type="button" onclick="openSyncModal()"
+          class="h-7 md:h-8 px-2.5 rounded-lg bg-isaac-card border border-isaac-border hover:border-isaac-gold text-[10.5px] md:text-[11px] font-bold text-isaac-text flex items-center gap-1.5 transition-colors"
+          title="Синхронизация прогресса / Sync Progress">
+          <svg class="w-3.5 h-3.5 text-isaac-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+            <path d="M16 16h5v5"/>
+          </svg>
+          <span id="lbl-sync-btn" class="hidden sm:inline">Синхр.</span>
         </button>
+
+        <!-- Выпадающий список выбора языка (Dropdown) -->
+        <div id="lang-dropdown-wrap" class="relative">
+          <button id="lang-dropdown-btn" type="button" onclick="toggleLangDropdown(event)"
+            aria-haspopup="listbox" aria-expanded="false"
+            class="h-7 md:h-8 px-2.5 rounded-lg bg-isaac-card border border-isaac-gold/45 hover:border-isaac-gold font-mono text-[10.5px] md:text-[11px] font-extrabold text-isaac-gold flex items-center gap-1 transition-colors">
+            <svg class="w-3.5 h-3.5 opacity-85 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <span id="lang-dropdown-label">RU</span>
+            <svg id="lang-dropdown-chevron" class="w-3 h-3 transition-transform duration-150" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <div id="lang-dropdown-menu" role="listbox"
+            class="hidden absolute right-0 mt-1.5 w-36 rounded-xl bg-isaac-elevated border border-isaac-gold/55 shadow-2xl py-1 z-50 overflow-hidden">
+            <button type="button" onclick="setLanguage('ru')" data-lang-opt="ru"
+              class="w-full px-3 py-2 text-left text-xs font-bold flex items-center justify-between hover:bg-isaac-card transition-colors text-isaac-text">
+              <span>Русский (RU)</span>
+              <span class="lang-check font-mono text-isaac-gold">✓</span>
+            </button>
+            <button type="button" onclick="setLanguage('en')" data-lang-opt="en"
+              class="w-full px-3 py-2 text-left text-xs font-bold flex items-center justify-between hover:bg-isaac-card transition-colors text-isaac-muted">
+              <span>English (EN)</span>
+              <span class="lang-check font-mono text-isaac-gold opacity-0">✓</span>
+            </button>
+          </div>
+        </div>
 
         <!-- Глобальные счетчики -->
         <div class="flex items-center gap-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-isaac-card border border-isaac-border font-mono text-[11px] md:text-[12px] font-bold tabular-nums">
@@ -536,6 +572,9 @@
                   <span id="lbl-char-sheet" class="text-[9px] font-semibold text-isaac-muted uppercase mt-0.5">Лист</span>
                 </div>
               </div>
+
+              <!-- Карточка особенностей и тактики выбранного героя -->
+              <div id="hero-trait-box" class="bg-isaac-elevated border border-isaac-border rounded-xl p-2.5 text-[11.5px] leading-relaxed"></div>
 
               <div class="grid grid-cols-2 gap-2">
                 <button id="btn-reset-char" type="button" onclick="openResetModal()"
@@ -766,6 +805,21 @@
 
             <div id="sacrifice-detail" class="bg-isaac-elevated border border-isaac-border rounded-xl p-2.5 min-h-[64px] flex items-center text-xs text-isaac-text/90 leading-relaxed"></div>
           </div>
+        </div>
+
+        <!-- Интерактивный чек-лист порядка действий на этаже -->
+        <div class="bg-isaac-card border border-isaac-border rounded-2xl p-3.5 space-y-2.5 no-select">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h3 id="lbl-routine-title" class="text-sm font-bold text-isaac-text">Порядок зачистки этажа (Шпаргалка)</h3>
+              <p id="lbl-routine-sub" class="text-xs text-isaac-muted">Отмечай шаги во время забега и сбрасывай при спуске в люк</p>
+            </div>
+            <button id="btn-routine-reset" type="button" onclick="resetFloorRoutine()"
+              class="shrink-0 h-8 px-3 rounded-lg bg-isaac-elevated border border-isaac-border text-xs font-bold text-isaac-gold hover:border-isaac-gold">
+              Новый этаж
+            </button>
+          </div>
+          <div id="floor-routine-list" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
         </div>
 
         <div class="space-y-2 no-select">
@@ -999,6 +1053,75 @@
       </div>
     </div>
 
+    <!-- Модальное окно синхронизации прогресса (ПК ↔ Телефон + Бэкап + Steam Save) -->
+    <div id="sync-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 no-select">
+      <div class="bg-isaac-card border border-isaac-border rounded-2xl max-w-[430px] w-full p-4 space-y-3 shadow-2xl max-h-[90dvh] overflow-y-auto">
+        <div class="flex items-center justify-between gap-2 border-b border-isaac-border pb-2.5">
+          <div>
+            <h3 id="sync-modal-title" class="text-sm font-extrabold text-isaac-text">Синхронизация ПК ↔ Телефон</h3>
+            <p id="sync-modal-sub" class="text-[11px] text-isaac-muted mt-0.5">Перенос всех 408 меток и 641 секретов между устройствами</p>
+          </div>
+          <button type="button" onclick="closeSyncModal()"
+            class="w-8 h-8 rounded-lg bg-isaac-elevated border border-isaac-border text-isaac-muted hover:text-isaac-text flex items-center justify-center font-mono text-xs">
+            ✕
+          </button>
+        </div>
+
+        <!-- Способ 1: Ссылка или Код синхронизации -->
+        <div class="bg-isaac-elevated border border-isaac-border rounded-xl p-3 space-y-2">
+          <div class="text-xs font-bold text-isaac-gold" id="lbl-sync-step1">1. Быстрый перенос по ссылке или коду</div>
+          <p class="text-[11px] text-isaac-muted leading-relaxed" id="lbl-sync-step1-desc">
+            Скопируй ссылку и отправь себе (например, в «Избранное» Telegram). При открытии на другом устройстве прогресс загрузится автоматически.
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-copy-sync-link" type="button" onclick="copySyncLink()"
+              class="h-9 px-2.5 rounded-lg bg-isaac-crimson text-[11px] font-bold text-isaac-text">
+              Скопировать ссылку
+            </button>
+            <button id="btn-copy-sync-code" type="button" onclick="copySyncCode()"
+              class="h-9 px-2.5 rounded-lg bg-isaac-card border border-isaac-gold/50 text-[11px] font-bold text-isaac-gold">
+              Скопировать код
+            </button>
+          </div>
+          <div class="flex gap-1.5 pt-1">
+            <input id="sync-code-input" type="text" placeholder="Вставь код ISAAC1:... или ссылку"
+              class="flex-1 min-w-0 h-9 px-2.5 rounded-lg bg-isaac-bg border border-isaac-border font-mono text-[11px] text-isaac-text placeholder:text-isaac-muted focus:outline-none focus:border-isaac-gold" />
+            <button id="btn-apply-sync-code" type="button" onclick="applySyncCode()"
+              class="shrink-0 h-9 px-3 rounded-lg bg-isaac-gold text-isaac-bg text-[11px] font-extrabold">
+              Загрузить
+            </button>
+          </div>
+        </div>
+
+        <!-- Способ 2: Файл JSON и Сейв игры из Steam -->
+        <div class="bg-isaac-elevated border border-isaac-border rounded-xl p-3 space-y-2">
+          <div class="text-xs font-bold text-isaac-text" id="lbl-sync-step2">2. Резервный файл (.json) или сейв Steam (.dat)</div>
+          <p class="text-[11px] text-isaac-muted leading-relaxed" id="lbl-sync-step2-desc">
+            На ПК можно загрузить файл сохранения из папки игры (<code class="text-isaac-gold">Documents/My Games/Binding of Isaac Repentance+</code>).
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-export-json" type="button" onclick="exportJsonBackup()"
+              class="h-9 px-2.5 rounded-lg bg-isaac-card border border-isaac-border text-[11px] font-bold text-isaac-text hover:border-isaac-gold">
+              Скачать .json
+            </button>
+            <label class="h-9 px-2.5 rounded-lg bg-isaac-card border border-isaac-border text-[11px] font-bold text-isaac-text hover:border-isaac-gold flex items-center justify-center cursor-pointer">
+              <span id="lbl-import-json">Открыть .json</span>
+              <input type="file" accept=".json,application/json" onchange="importJsonBackup(event)" class="hidden" />
+            </label>
+          </div>
+          <label class="w-full h-9 px-3 rounded-lg bg-isaac-bg border border-isaac-gold/45 text-[11px] font-bold text-isaac-gold hover:bg-isaac-gold/10 flex items-center justify-center cursor-pointer">
+            <span id="lbl-import-dat">Импорт сейва Steam (persistentgamedata.dat)</span>
+            <input type="file" accept=".dat" onchange="importSteamSaveDat(event)" class="hidden" />
+          </label>
+        </div>
+
+        <button id="btn-sync-close" type="button" onclick="closeSyncModal()"
+          class="w-full h-9 rounded-xl bg-isaac-bg border border-isaac-border text-xs font-semibold text-isaac-muted">
+          Закрыть
+        </button>
+      </div>
+    </div>
+
     <!-- Кнопка быстрого возврата наверх (появляется при скролле вниз, скрывается при скролле вверх) -->
     <button id="scroll-top-btn" type="button" onclick="scrollToActiveTop()" aria-label="Scroll to top" class="no-select">
       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
@@ -1066,6 +1189,7 @@
       secretsRenderLimit: 60,
       planetariumSkipped: 0,
       sacrificeStep: 0,
+      floorChecklist: {},
       scrollPositions: {
         hero: 0,
         floors: 0,
@@ -1082,6 +1206,7 @@
       ru: {
         docTitle: 'The Binding of Isaac: Repentance+ — Путеводитель и трекер',
         headerSub: 'Справочник • Hard Mode',
+        syncBtn: 'Синхр.',
         marksTooltip: 'Закрытые метки боссов',
         secretsTooltip: 'Открытые секреты (достижения)',
         navHero: 'Герой',
@@ -1156,6 +1281,29 @@
         modalResetChar: 'Очистить текущего персонажа',
         modalResetAll: 'Сбросить весь прогресс (0/641)',
         modalCancel: 'Отмена',
+        syncModalTitle: 'Синхронизация ПК ↔ Телефон',
+        syncModalSub: 'Перенос всех 408 меток и 641 секретов между устройствами',
+        syncStep1: '1. Быстрый перенос по ссылке или коду',
+        syncStep1Desc: 'Скопируй ссылку и отправь себе (например, в «Избранное» Telegram). При открытии на другом устройстве прогресс загрузится автоматически.',
+        copySyncLink: 'Скопировать ссылку',
+        copySyncCode: 'Скопировать код',
+        syncInputPlaceholder: 'Вставь код ISAAC1:... или ссылку',
+        applySyncCode: 'Загрузить',
+        syncStep2: '2. Резервный файл (.json) или сейв Steam (.dat)',
+        syncStep2Desc: 'На ПК можно загрузить файл сохранения из папки игры (Documents/My Games/Binding of Isaac Repentance+).',
+        exportJson: 'Скачать .json',
+        importJson: 'Открыть .json',
+        importDat: 'Импорт сейва Steam (persistentgamedata.dat)',
+        syncClose: 'Закрыть',
+        routineTitle: 'Порядок зачистки этажа (Шпаргалка)',
+        routineSub: 'Отмечай шаги во время забега и сбрасывай при спуске в люк',
+        routineReset: 'Новый этаж',
+        toastLinkCopied: 'Ссылка с прогрессом скопирована!',
+        toastCodeCopied: 'Код прогресса скопирован!',
+        toastSyncLoaded: 'Прогресс успешно загружен!',
+        toastSyncError: 'Неверный код или файл сохранения',
+        toastSteamImported: 'Сейв Steam импортирован!',
+        toastRoutineReset: 'Чек-лист нового этажа готов',
         toastMarksCleared: 'Все 12 меток сняты',
         toastMarksDone: 'Все 12 меток закрыты!',
         toastRunCleared: 'Метки забега сняты',
@@ -1167,6 +1315,7 @@
       en: {
         docTitle: 'The Binding of Isaac: Repentance+ — Guide & Tracker',
         headerSub: 'Companion • Hard Mode',
+        syncBtn: 'Sync',
         marksTooltip: 'Completed Boss Marks',
         secretsTooltip: 'Unlocked Secrets (Achievements)',
         navHero: 'Hero',
@@ -1241,6 +1390,29 @@
         modalResetChar: 'Clear current character',
         modalResetAll: 'Reset all progress (0/641)',
         modalCancel: 'Cancel',
+        syncModalTitle: 'Sync Progress (PC ↔ Mobile)',
+        syncModalSub: 'Transfer all 408 marks and 641 secrets across devices',
+        syncStep1: '1. Instant Transfer via Link or Code',
+        syncStep1Desc: 'Copy the sync link and send it to yourself (e.g. Telegram Saved Messages). Opening it on another device loads your progress automatically.',
+        copySyncLink: 'Copy Sync Link',
+        copySyncCode: 'Copy Sync Code',
+        syncInputPlaceholder: 'Paste ISAAC1:... code or sync URL',
+        applySyncCode: 'Load',
+        syncStep2: '2. JSON Backup or Steam Save (.dat)',
+        syncStep2Desc: 'On PC you can import your save file from Documents/My Games/Binding of Isaac Repentance+.',
+        exportJson: 'Download .json',
+        importJson: 'Open .json',
+        importDat: 'Import Steam Save (persistentgamedata.dat)',
+        syncClose: 'Close',
+        routineTitle: 'Optimal Floor Routine Checklist',
+        routineSub: 'Check off steps during a floor and reset when descending',
+        routineReset: 'New Floor',
+        toastLinkCopied: 'Sync link copied to clipboard!',
+        toastCodeCopied: 'Sync code copied!',
+        toastSyncLoaded: 'Progress synced successfully!',
+        toastSyncError: 'Invalid sync code or file',
+        toastSteamImported: 'Steam save imported!',
+        toastRoutineReset: 'New floor checklist ready',
         toastMarksCleared: 'All 12 marks cleared',
         toastMarksDone: 'All 12 marks completed!',
         toastRunCleared: 'Run marks cleared',
@@ -1387,6 +1559,52 @@
     }));
 
     const ALL_CHARACTERS = [...BASE_CHARACTERS, ...TAINTED_CHARACTERS];
+
+    const HERO_GUIDES = {
+      isaac: { ru: '<strong>Старт:</strong> D6 (после победы за ???) + 1 бомба. <strong>Совет:</strong> береги заряды D6 для Сокровищницы, Комнаты Ангела и Секретной комнаты.', en: '<strong>Kit:</strong> The D6 (unlock via ???) + 1 Bomb. <strong>Tip:</strong> Save D6 charges for Treasure, Angel, and Secret Room pedestals.' },
+      magdalene: { ru: '<strong>Старт:</strong> 4 ❤️ + Yum Heart + Full Health. <strong>Совет:</strong> на 1-м этаже сразу иди в Sacrifice Room — 7–11 ударов с лечением дают предметы Ангела и ключи.', en: '<strong>Kit:</strong> 4 ❤️ + Yum Heart + Full Health. <strong>Tip:</strong> Use Floor 1 Sacrifice Room aggressively (7–11 hits) for early Angel items & Key Pieces.' },
+      cain: { ru: '<strong>Старт:</strong> Lucky Foot + Paper Clip. <strong>Совет:</strong> все пилюли гарантированно позитивные/нейтральные, а золотые сундуки открываются без ключей.', en: '<strong>Kit:</strong> Lucky Foot + Paper Clip. <strong>Tip:</strong> All pills are safe/positive and Golden Chests open completely free.' },
+      judas: { ru: '<strong>Старт:</strong> 1 ❤️ + Book of Belial (x1.35 урон). <strong>Совет:</strong> срочно ищи синие сердца в Tinted Rocks; Book of Belial повышает шанс сделки на +12.5%.', en: '<strong>Kit:</strong> 1 ❤️ + Book of Belial (1.35x Dmg). <strong>Tip:</strong> Prioritize Tinted Rocks for Soul Hearts; Belial adds +12.5% Deal chance.' },
+      bluebaby: { ru: '<strong>Старт:</strong> 3 синих сердца + The Poop. <strong>Совет:</strong> сделки с Дьяволом стоят 1–2 синих сердца вместо 3; ломай какашки ради монет и синих мух.', en: '<strong>Kit:</strong> 3 Soul Hearts + The Poop. <strong>Tip:</strong> Devil Deals cost only 1–2 Soul Hearts; break poops for pennies & flies.' },
+      eve: { ru: '<strong>Старт:</strong> Whore of Babylon + Dead Bird + Razor. <strong>Совет:</strong> держи красное здоровье на уровне ≤ 1 сердца (остальное — синими), чтобы бафф урона работал постоянно.', en: '<strong>Kit:</strong> Whore of Babylon + Dead Bird + Razor. <strong>Tip:</strong> Stay at ≤1 Red Heart (stack Soul Hearts) for permanent speed & damage.' },
+      samson: { ru: '<strong>Старт:</strong> Bloody Lust. <strong>Совет:</strong> сливай лишние красные сердца в Blood Bank или Curse Room на этаже, чтобы разгонять урон на весь этаж без потери сделки.', en: '<strong>Kit:</strong> Bloody Lust. <strong>Tip:</strong> Use Blood Banks or Curse Rooms to stack damage up to 6 times per floor without losing Deals.' },
+      azazel: { ru: '<strong>Старт:</strong> Полет + короткий луч Brimstone. <strong>Совет:</strong> идеален для закрытия Boss Rush (<20:00) и Hush (<30:00); ищи увеличение дальности (Range).', en: '<strong>Kit:</strong> Flight + Mini-Brimstone. <strong>Tip:</strong> Best hero for Boss Rush (<20m) & Hush (<30m); prioritize Range upgrades.' },
+      lazarus: { ru: '<strong>Старт:</strong> 2 жизни (во 2-й форме перманентный урон + Anemic). <strong>Совет:</strong> намеренно умирай на боссе/в сделке в конце этажа ради усиленной формы.', en: '<strong>Kit:</strong> Extra life with permanent DPS boost + Anemic. <strong>Tip:</strong> Intentionally revive at the end of an early floor to gain permanent damage.' },
+      eden: { ru: '<strong>Старт:</strong> случайные статы + 1 активный и 1 пассивный предмет. <strong>Совет:</strong> адаптируй маршрут (Верх/Низ/Beast) под выпавший стартовый билд.', en: '<strong>Kit:</strong> Random stats + 1 Active & 1 Passive item. <strong>Tip:</strong> Pick your route (Chest/Dark Room/Beast) based on your starting roll.' },
+      lost: { ru: '<strong>Старт:</strong> Полет, спектральные слезы + Holy Mantle + Eternal D6. <strong>Совет:</strong> вход в Curse Room бесплатный (осторожно при выходе!), сделки с Дьяволом — 1 предмет бесплатно.', en: '<strong>Kit:</strong> Flight, Spectral tears + Holy Mantle + Eternal D6. <strong>Tip:</strong> Free Curse Room entry & 1 free Devil Deal per room!' },
+      lilith: { ru: '<strong>Старт:</strong> Incubus + Box of Friends + Cambion Conception. <strong>Совет:</strong> в Boss Rush и Greedier прожимай Box of Friends несколько раз в одной комнате для армии фамильяров.', en: '<strong>Kit:</strong> Incubus + Box of Friends. <strong>Tip:</strong> Multi-use Box of Friends in Boss Rush & Greedier to stack dozens of familiars.' },
+      keeper: { ru: '<strong>Старт:</strong> 3 монеты-контейнера + тройной выстрел + Wooden Nickel. <strong>Совет:</strong> не подбирай монеты на полу во время боя — оставляй их как аптечки на арене.', en: '<strong>Kit:</strong> 3 Coin Hearts + Triple Shot + Wooden Nickel. <strong>Tip:</strong> Leave loose pennies on the ground during boss fights as emergency heals.' },
+      apollyon: { ru: '<strong>Старт:</strong> Void (поглощает активки и превращает плохие пассивки в +2 случайных стата). <strong>Совет:</strong> поглощай бесполезные артефакты и книги.', en: '<strong>Kit:</strong> Void (absorbs actives & turns weak passives into +2 random stats). <strong>Tip:</strong> Suck up bad items and library books.' },
+      forgotten: { ru: '<strong>Старт:</strong> Скелет (ближний бой костью) + Призрак (полет). <strong>Совет:</strong> переключайся в Призрака (Ctrl), чтобы бесплатно залетать в Curse Room и брать сделки за синие сердца.', en: '<strong>Kit:</strong> Bone Melee Skeleton + Flying Soul. <strong>Tip:</strong> Swap to Soul form (Ctrl) to fly over pits and take Devil Deals safely.' },
+      bethany: { ru: '<strong>Старт:</strong> Book of Virtues (синие сердца идут на заряды активки). <strong>Совет:</strong> нет синей брони — береги красные сердца и закрывайся кольцом светлячков (Wisps).', en: '<strong>Kit:</strong> Book of Virtues (Soul Hearts fuel active charges). <strong>Tip:</strong> Protect Red Hearts using your orbiting Wisp ring.' },
+      jacob: { ru: '<strong>Старт:</strong> управление двумя братьями сразу. <strong>Совет:</strong> в альтернативных сокровищницах и комнатах Ангела с выбором забирай Оба предмета одновременно, выровняв братьев.', en: '<strong>Kit:</strong> Dual-brother control. <strong>Tip:</strong> Line both brothers up in Alt-Path Treasure Rooms & Angel choices to grab BOTH items simultaneously!' },
+      t_isaac: { ru: '<strong>Механика:</strong> все предметы на пьедесталах чередуются между 2 вариантами, но инвентарь ограничен 8 слотами (12 с Birthright).', en: '<strong>Trait:</strong> All pedestals cycle between 2 options, capped at 8 passive slots (12 with Birthright).' },
+      t_magdalene: { ru: '<strong>Механика:</strong> контейнеры выше 2 сердец постепенно утекают, но враги при смерти вблизи роняют временные полусердца; контактный урон очень высок.', en: '<strong>Trait:</strong> Hearts above 2 decay, but close-range kills drop half-hearts; hug enemies for huge contact damage.' },
+      t_cain: { ru: '<strong>Механика:</strong> все предметы рассыпаются на пикапы; собирай 8 пикапов в Bag of Crafting (высококачественные пикапы + черные/вечные сердца дают топ-артефакты).', en: '<strong>Trait:</strong> Pedestals dismantle into pickups; combine 8 in Bag of Crafting (rare hearts/gold pickups craft S-tier items).' },
+      t_judas: { ru: '<strong>Механика:</strong> Dark Arts (в кармане) делает неуязвимым и позволяет прорезать врагов и пули ради огромного временного урона.', en: '<strong>Trait:</strong> Pocket Dark Arts grants invulnerability while slicing through enemies & bullets for massive temporary Damage.' },
+      t_bluebaby: { ru: '<strong>Механика:</strong> вместо бомб использует особые какашки с разными эффектами и синергиями (огонь, яд, святая аура).', en: '<strong>Trait:</strong> Replaces bombs with throwable special poops that combo together (fire, poison, holy aura).' },
+      t_eve: { ru: '<strong>Механика:</strong> Sumptorium превращает лишние сердца в армию сгустков крови (Clots), стреляющих вместе с тобой; вовремя втягивай их обратно для лечения.', en: '<strong>Trait:</strong> Sumptorium converts excess HP into shooting Blood Clots; recall them to heal before taking hits.' },
+      t_samson: { ru: '<strong>Механика:</strong> при нанесении/получении урона входит в режим Берсерка с костяной дубиной и огромной скоростью.', en: '<strong>Trait:</strong> Dealing/taking damage triggers Berserk! melee mode with a bone club and huge speed.' },
+      t_azazel: { ru: '<strong>Механика:</strong> нет полета, но есть чих (отмечает врагов на x2 урон) и тонкий бесконечный луч Brimstone.', en: '<strong>Trait:</strong> No flight, but sneeze marks enemies for 2x damage + full-range thin Brimstone beam.' },
+      t_lazarus: { ru: '<strong>Механика:</strong> формы меняются каждую комнату; используй Flip (в кармане) на пьедесталах, чтобы получать второй предмет для другой формы.', en: '<strong>Trait:</strong> Swaps forms every room; use pocket Flip on item pedestals to grab a second item for the other form.' },
+      t_eden: { ru: '<strong>Механика:</strong> при любом получении урона рероллит все твои предметы, статы и даже здоровье. Накопи побольше предметов до первых хитов.', en: '<strong>Trait:</strong> Taking damage rerolls all your items, stats, and health. Stack cheap items before getting hit.' },
+      t_lost: { ru: '<strong>Механика:</strong> нет Holy Mantle, но стартует с Holy Card + автоматический реролл слабых предметов и повышенный шанс на Holy Cards.', en: '<strong>Trait:</strong> No Mantle, starts with Holy Card + auto-rerolls weak/defensive items and boosts Holy Card drops.' },
+      t_lilith: { ru: '<strong>Механика:</strong> выстреливает привязанного демона Gello как хлыст (огромный урон вблизи + автострельба).', en: '<strong>Trait:</strong> Whips tethered Gello forward for massive melee slap damage + rapid autofire.' },
+      t_keeper: { ru: '<strong>Механика:</strong> 2 монеты здоровья; враги роняют исчезающие монеты, а все предметы в Сокровищницах и Сделках продаются за монеты.', en: '<strong>Trait:</strong> 2 Coin Hearts; enemies drop timed coins, and Treasure/Deal items cost coins instead of HP.' },
+      t_apollyon: { ru: '<strong>Механика:</strong> Abyss поглощает ненужные предметы, превращая их в постоянных атакующих саранчей (Locusts) с особыми эффектами.', en: '<strong>Trait:</strong> Abyss converts unwanted items into permanent orbiting attack Locusts with unique synergies.' },
+      t_forgotten: { ru: '<strong>Механика:</strong> ты управляешь летающим Призраком и швыряешь неподвижный Скелет во врагов (вход в Curse Room через бросок скелета бесплатный!).', en: '<strong>Trait:</strong> Control flying Soul and throw the Skeleton like a weapon (toss Skeleton through Curse Room doors for free!).' },
+      t_bethany: { ru: '<strong>Механика:</strong> Lemegeton призывает случайные пассивные предметы в виде блуждающих светлячков (Wisps); пока светлячок жив, предмет работает.', en: '<strong>Trait:</strong> Lemegeton spawns random passive items as Wisps; you keep their effects as long as the Wisp survives.' },
+      t_jacob: { ru: '<strong>Механика:</strong> за тобой охотится неубиваемый Dark Esau (касание превращает в Lost до конца этажа). Используй Anima Sola, чтобы приковывать его и таранить им боссов!', en: '<strong>Trait:</strong> Dark Esau chases you (touching turns you into Lost for the floor). Chain him with Anima Sola and launch him into bosses!' }
+    };
+
+    const FLOOR_ROUTINE_STEPS = [
+      { id: 'r1', text: { ru: '1. Найти и взорвать Tinted Rock (синий камень с X) ради брони', en: '1. Find & bomb Tinted Rock (blue X rock) for Soul Hearts' } },
+      { id: 'r2', text: { ru: '2. Зачистить все комнаты и найти обе Секретные комнаты', en: '2. Clear all rooms & locate Secret + Super Secret Rooms' } },
+      { id: 'r3', text: { ru: '3. Победить Босса этажа (не тратя красные сердца)', en: '3. Defeat Floor Boss (protecting Red Heart Deal chance)' } },
+      { id: 'r4', text: { ru: '4. Собрать оставленные на этаже синие/черные сердца', en: '4. Collect saved Soul/Black Hearts left on the floor' } },
+      { id: 'r5', text: { ru: '5. Зайти в Curse Room и комнату Дьявола / Ангела', en: '5. Enter Curse Room and Devil / Angel Deal room' } },
+      { id: 'r6', text: { ru: '6. Слить лишние красные сердца в Blood Bank / Sacrifice Room', en: '6. Spend excess Red Hearts in Blood Bank / Sacrifice Room' } }
+    ];
 
     const COMPLETION_MARKS = [
       { id: 'heart', label: "Mom's Heart", sub: { ru: '8 этаж', en: 'Floor 8' }, icon: 'heart' },
@@ -3174,12 +3392,271 @@
       }
       if (!appState.codexRenderLimit || appState.codexRenderLimit < 60) appState.codexRenderLimit = 60;
       if (!appState.secretsRenderLimit || appState.secretsRenderLimit < 60) appState.secretsRenderLimit = 60;
+      if (!appState.floorChecklist || typeof appState.floorChecklist !== 'object') appState.floorChecklist = {};
+
+      // Автоматический импорт прогресса из URL-ссылки (#save=ISAAC1:...)
+      try {
+        const hash = window.location.hash || '';
+        const match = hash.match(/save=(ISAAC1:[A-Za-z0-9\-_]+)/);
+        if (match && match[1]) {
+          if (decodeProgressCode(match[1])) {
+            window._importedFromHashOnBoot = true;
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+          }
+        }
+      } catch (e) {
+        // Ignore hash parse error
+      }
 
       syncAllMarksToSecrets();
     }
 
     function saveState() {
       safeStorage.set(STORAGE_KEY, JSON.stringify(appState));
+    }
+
+    // =========================================================================
+    // 8.1 СИНХРОНИЗАЦИЯ ПК ↔ ТЕЛЕФОН (BITSET CODE, URL HASH, JSON & STEAM .DAT)
+    // =========================================================================
+    function encodeProgressCode() {
+      // Упаковываем 408 меток (51 байт) + 641 секретов (81 байт) = 132 байта в Base64URL
+      const totalBits = 408 + 641;
+      const bytes = new Uint8Array(Math.ceil(totalBits / 8));
+      let bitIdx = 0;
+
+      ALL_CHARACTERS.forEach(c => {
+        const marks = appState.charMarks[c.id] || [];
+        COMPLETION_MARKS.forEach(m => {
+          if (marks.includes(m.id)) {
+            bytes[bitIdx >> 3] |= (1 << (bitIdx & 7));
+          }
+          bitIdx++;
+        });
+      });
+
+      for (let s = 1; s <= 641; s++) {
+        if (appState.unlockedSecrets[s]) {
+          bytes[bitIdx >> 3] |= (1 << (bitIdx & 7));
+        }
+        bitIdx++;
+      }
+
+      let bin = '';
+      for (let i = 0; i < bytes.length; i++) {
+        bin += String.fromCharCode(bytes[i]);
+      }
+      const b64 = btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      return `ISAAC1:${b64}`;
+    }
+
+    function decodeProgressCode(rawInput) {
+      if (!rawInput || typeof rawInput !== 'string') return false;
+      const match = rawInput.trim().match(/ISAAC1:([A-Za-z0-9\-_]+)/);
+      if (!match) return false;
+
+      try {
+        let b64 = match[1].replace(/-/g, '+').replace(/_/g, '/');
+        while (b64.length % 4) b64 += '=';
+        const bin = atob(b64);
+        if (bin.length < 132) return false;
+
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+
+        const nextMarks = {};
+        const nextSecrets = {};
+        let bitIdx = 0;
+
+        ALL_CHARACTERS.forEach(c => {
+          const list = [];
+          COMPLETION_MARKS.forEach(m => {
+            if ((bytes[bitIdx >> 3] & (1 << (bitIdx & 7))) !== 0) {
+              list.push(m.id);
+            }
+            bitIdx++;
+          });
+          if (list.length > 0) nextMarks[c.id] = list;
+        });
+
+        for (let s = 1; s <= 641; s++) {
+          if ((bytes[bitIdx >> 3] & (1 << (bitIdx & 7))) !== 0) {
+            nextSecrets[s] = true;
+          }
+          bitIdx++;
+        }
+
+        appState.charMarks = nextMarks;
+        appState.unlockedSecrets = nextSecrets;
+        syncAllMarksToSecrets();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function copyTextToClipboard(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(() => {});
+        }
+      }
+      document.body.removeChild(ta);
+    }
+
+    function openSyncModal() {
+      const code = encodeProgressCode();
+      const inp = document.getElementById('sync-code-input');
+      if (inp) inp.value = code;
+      document.getElementById('sync-modal').classList.remove('hidden');
+    }
+
+    function closeSyncModal() {
+      document.getElementById('sync-modal').classList.add('hidden');
+    }
+
+    function copySyncLink() {
+      const code = encodeProgressCode();
+      const baseUrl = window.location.href.split('#')[0];
+      const fullUrl = `${baseUrl}#save=${code}`;
+      copyTextToClipboard(fullUrl);
+      showToast(T('toastLinkCopied'));
+    }
+
+    function copySyncCode() {
+      const code = encodeProgressCode();
+      copyTextToClipboard(code);
+      showToast(T('toastCodeCopied'));
+    }
+
+    function applySyncCode() {
+      const inp = document.getElementById('sync-code-input');
+      const val = inp ? inp.value : '';
+      if (decodeProgressCode(val)) {
+        saveState();
+        renderAllSections();
+        closeSyncModal();
+        showToast(T('toastSyncLoaded'));
+      } else {
+        showToast(T('toastSyncError'));
+      }
+    }
+
+    function exportJsonBackup() {
+      const payload = {
+        version: 'isaac_rep_plus_v1',
+        exportedAt: new Date().toISOString(),
+        charMarks: appState.charMarks,
+        unlockedSecrets: appState.unlockedSecrets
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `isaac_progress_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importJsonBackup(event) {
+      const file = event.target.files && event.target.files[0];
+      event.target.value = '';
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(String(reader.result || '{}'));
+          if (data && typeof data.charMarks === 'object' && typeof data.unlockedSecrets === 'object') {
+            appState.charMarks = data.charMarks;
+            appState.unlockedSecrets = data.unlockedSecrets;
+            syncAllMarksToSecrets();
+            saveState();
+            renderAllSections();
+            closeSyncModal();
+            showToast(T('toastSyncLoaded'));
+          } else {
+            showToast(T('toastSyncError'));
+          }
+        } catch (e) {
+          showToast(T('toastSyncError'));
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function importSteamSaveDat(event) {
+      const file = event.target.files && event.target.files[0];
+      event.target.value = '';
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const buf = reader.result;
+          const view = new DataView(buf);
+          const bytes = new Uint8Array(buf);
+          // Формат Isaac Save: 16 байт заголовок + 4 байта CRC + блоки [type:int32, size:int32, count:int32, data...]
+          let offset = 20;
+          let foundAchievements = false;
+
+          while (offset + 12 <= bytes.length) {
+            const secType = view.getInt32(offset, true);
+            const secSize = view.getInt32(offset + 4, true);
+            const count = view.getInt32(offset + 8, true);
+            if (secSize <= 0 || offset + 8 + secSize > bytes.length) break;
+
+            if (secType === 1 && count >= 400 && count <= 1000) {
+              const nextSecrets = {};
+              const maxSecret = Math.min(641, count - 1);
+              for (let s = 1; s <= maxSecret; s++) {
+                if (bytes[offset + 12 + s] > 0) {
+                  nextSecrets[s] = true;
+                }
+              }
+              // Обратная синхронизация открытых секретов в 408 меток на листках персонажей
+              const nextMarks = {};
+              ALL_CHARACTERS.forEach(c => {
+                const list = [];
+                COMPLETION_MARKS.forEach(m => {
+                  const sNum = SYNC_KEY_TO_SECRET_NUM[`${c.id}:${m.id}`];
+                  if (sNum && nextSecrets[sNum]) {
+                    list.push(m.id);
+                  }
+                });
+                if (list.length > 0) nextMarks[c.id] = list;
+              });
+
+              appState.unlockedSecrets = nextSecrets;
+              appState.charMarks = nextMarks;
+              foundAchievements = true;
+              break;
+            }
+            offset += 8 + secSize;
+          }
+
+          if (foundAchievements) {
+            saveState();
+            renderAllSections();
+            closeSyncModal();
+            showToast(T('toastSteamImported'));
+          } else {
+            showToast(T('toastSyncError'));
+          }
+        } catch (e) {
+          showToast(T('toastSyncError'));
+        }
+      };
+      reader.readAsArrayBuffer(file);
     }
 
     function getScrollContainer(tabId) {
@@ -3305,11 +3782,37 @@
     }
 
     // =========================================================================
-    // 9. ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА И ОБНОВЛЕНИЕ СТАТИЧЕСКИХ ПОДПИСЕЙ
+    // 9. ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА (DROPDOWN) И ОБНОВЛЕНИЕ СТАТИЧЕСКИХ ПОДПИСЕЙ
     // =========================================================================
-    function toggleLanguage() {
+    function toggleLangDropdown(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('lang-dropdown-menu');
+      const btn = document.getElementById('lang-dropdown-btn');
+      const chev = document.getElementById('lang-dropdown-chevron');
+      if (!menu) return;
+      const isHidden = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', !isHidden);
+      if (btn) btn.setAttribute('aria-expanded', String(isHidden));
+      if (chev) chev.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+
+    function closeLangDropdown() {
+      const menu = document.getElementById('lang-dropdown-menu');
+      const btn = document.getElementById('lang-dropdown-btn');
+      const chev = document.getElementById('lang-dropdown-chevron');
+      if (menu && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+        if (chev) chev.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    function setLanguage(newLang) {
+      closeLangDropdown();
+      if (newLang !== 'ru' && newLang !== 'en') return;
+      if (appState.lang === newLang) return;
       saveActiveScroll();
-      appState.lang = appState.lang === 'ru' ? 'en' : 'ru';
+      appState.lang = newLang;
       saveState();
       applyStaticTranslations();
       renderAllSections();
@@ -3322,10 +3825,19 @@
       document.title = T('docTitle');
 
       const el = (id) => document.getElementById(id);
-      el('lang-toggle-label').textContent = appState.lang.toUpperCase();
+      el('lang-dropdown-label').textContent = appState.lang.toUpperCase();
+      el('lbl-sync-btn').textContent = T('syncBtn');
       el('header-subtitle').textContent = T('headerSub');
       el('marks-pill-wrap').title = T('marksTooltip');
       el('secrets-pill-wrap').title = T('secretsTooltip');
+
+      document.querySelectorAll('[data-lang-opt]').forEach(opt => {
+        const isCurrent = opt.dataset.langOpt === appState.lang;
+        opt.classList.toggle('text-isaac-text', isCurrent);
+        opt.classList.toggle('text-isaac-muted', !isCurrent);
+        const chk = opt.querySelector('.lang-check');
+        if (chk) chk.classList.toggle('opacity-0', !isCurrent);
+      });
 
       el('nav-lbl-hero').textContent = T('navHero');
       el('nav-lbl-floors').textContent = T('navFloors');
@@ -3389,6 +3901,25 @@
       el('btn-modal-reset-char').textContent = T('modalResetChar');
       el('btn-modal-reset-all').textContent = T('modalResetAll');
       el('btn-modal-cancel').textContent = T('modalCancel');
+
+      el('sync-modal-title').textContent = T('syncModalTitle');
+      el('sync-modal-sub').textContent = T('syncModalSub');
+      el('lbl-sync-step1').textContent = T('syncStep1');
+      el('lbl-sync-step1-desc').textContent = T('syncStep1Desc');
+      el('btn-copy-sync-link').textContent = T('copySyncLink');
+      el('btn-copy-sync-code').textContent = T('copySyncCode');
+      el('sync-code-input').placeholder = T('syncInputPlaceholder');
+      el('btn-apply-sync-code').textContent = T('applySyncCode');
+      el('lbl-sync-step2').textContent = T('syncStep2');
+      el('lbl-sync-step2-desc').textContent = T('syncStep2Desc');
+      el('btn-export-json').textContent = T('exportJson');
+      el('lbl-import-json').textContent = T('importJson');
+      el('lbl-import-dat').textContent = T('importDat');
+      el('btn-sync-close').textContent = T('syncClose');
+
+      el('lbl-routine-title').textContent = T('routineTitle');
+      el('lbl-routine-sub').textContent = T('routineSub');
+      el('btn-routine-reset').textContent = T('routineReset');
     }
 
     function updateGlobalCounters() {
@@ -3506,6 +4037,12 @@
       document.getElementById('selected-char-progress').textContent = `${activeMarksCount}/12`;
       document.getElementById('btn-complete-all').textContent =
         activeMarksCount === COMPLETION_MARKS.length ? T('completeAllRemove') : T('completeAll');
+
+      const traitBox = document.getElementById('hero-trait-box');
+      if (traitBox) {
+        const guide = HERO_GUIDES[appState.selectedChar];
+        traitBox.innerHTML = guide ? `<span class="text-isaac-text/90">${L(guide)}</span>` : '';
+      }
     }
 
     function renderPostItNote() {
@@ -3938,6 +4475,40 @@
       renderSacrificeRoom();
     }
 
+    function toggleFloorRoutineStep(stepId) {
+      appState.floorChecklist[stepId] = !appState.floorChecklist[stepId];
+      saveState();
+      renderFloorRoutine();
+    }
+
+    function resetFloorRoutine() {
+      appState.floorChecklist = {};
+      saveState();
+      renderFloorRoutine();
+      showToast(T('toastRoutineReset'));
+    }
+
+    function renderFloorRoutine() {
+      const list = document.getElementById('floor-routine-list');
+      if (!list) return;
+      list.innerHTML = FLOOR_ROUTINE_STEPS.map(step => {
+        const done = !!appState.floorChecklist[step.id];
+        return `
+          <button type="button" onclick="toggleFloorRoutineStep('${step.id}')"
+            class="w-full text-left p-2.5 rounded-xl border flex items-center gap-2.5 transition-colors ${
+              done
+                ? 'bg-isaac-gold/10 border-isaac-gold/55 text-isaac-muted line-through'
+                : 'bg-isaac-elevated border-isaac-border text-isaac-text hover:border-isaac-gold/45'
+            }">
+            <span class="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 font-mono text-xs ${
+              done ? 'bg-isaac-gold border-isaac-gold text-isaac-bg font-extrabold' : 'border-isaac-border text-transparent'
+            }">✓</span>
+            <span class="text-xs leading-snug">${L(step.text)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
     // =========================================================================
     // 14. ВКЛАДКА «КОДЕКС» (КАРТЫ, РУНЫ/ДУШИ, ПИЛЮЛИ, БРЕЛКИ, ВЕЩИ, МЕХАНИКИ)
     // =========================================================================
@@ -4335,6 +4906,7 @@
       renderRooms();
       renderPlanetarium();
       renderSacrificeRoom();
+      renderFloorRoutine();
       renderCodex();
       renderSecrets();
       renderBosses();
@@ -4348,6 +4920,21 @@
       try {
         loadState();
         applyStaticTranslations();
+
+        document.addEventListener('click', (e) => {
+          const wrap = document.getElementById('lang-dropdown-wrap');
+          if (wrap && !wrap.contains(e.target)) {
+            closeLangDropdown();
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            closeLangDropdown();
+            closeResetModal();
+            closeSyncModal();
+          }
+        });
 
         const codexInp = document.getElementById('codex-search-input');
         if (codexInp && appState.codexSearch) {
@@ -4380,6 +4967,10 @@
 
         attachScrollListeners();
         restoreTabScroll(initialTab);
+
+        if (window._importedFromHashOnBoot) {
+          showToast(T('toastSyncLoaded'));
+        }
       } catch (err) {
         console.error('Isaac Companion boot error:', err);
       }
