@@ -13,6 +13,7 @@
       var validTabs = ['hero', 'floors', 'rooms', 'codex', 'secrets', 'bosses'];
       var savedTab = 'hero';
       var langPref = 'system';
+      var fontScale = 'md';
       try {
         if (window.self !== window.top) {
           document.documentElement.classList.add('in-iframe');
@@ -33,6 +34,9 @@
           } else if (parsed && (parsed.lang === 'ru' || parsed.lang === 'en')) {
             langPref = parsed.lang;
           }
+          if (parsed && (parsed.fontScale === 'sm' || parsed.fontScale === 'md' || parsed.fontScale === 'lg' || parsed.fontScale === 'xl')) {
+            fontScale = parsed.fontScale;
+          }
         }
       } catch (e) {}
       var effectiveLang = langPref;
@@ -46,11 +50,12 @@
       }
       document.documentElement.setAttribute('data-tab', savedTab);
       document.documentElement.setAttribute('data-lang-pref', langPref);
+      document.documentElement.setAttribute('data-font-scale', fontScale);
       document.documentElement.lang = effectiveLang;
     })();
   </script>
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <!-- Google Fonts: Cinzel, Inter, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,17 +75,17 @@
             },
             colors: {
               isaac: {
-                bg: '#09090b',
-                card: '#111114',
-                elevated: '#17171c',
-                border: '#23232b',
-                parchment: '#eae2d0',
-                parchmentDark: '#dcd0b6',
+                bg: '#09090c',
+                card: '#131318',
+                elevated: '#1a1a22',
+                border: '#272732',
+                parchment: '#eee6d4',
+                parchmentDark: '#dfd3b9',
                 ink: '#211b16',
-                text: '#f4f4f6',
-                muted: '#8e8e98',
-                crimson: '#e05656',
-                gold: '#dfb973',
+                text: '#f5f5f7',
+                muted: '#a6a6b4',
+                crimson: '#e55858',
+                gold: '#e5c17b',
                 emerald: '#4ade80',
               }
             }
@@ -130,13 +135,28 @@
       }
     }
 
+    html {
+      font-size: 16px;
+    }
+    html[data-font-scale="sm"] {
+      font-size: 14.5px;
+    }
+    html[data-font-scale="lg"] {
+      font-size: 17.5px;
+    }
+    html[data-font-scale="xl"] {
+      font-size: 19px;
+    }
+
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
       background-color: #050507;
-      color: #f4f4f6;
+      background-image: radial-gradient(circle at 20% 0%, rgba(229, 88, 88, 0.08), transparent 45%),
+                        radial-gradient(circle at 85% 10%, rgba(229, 193, 123, 0.06), transparent 40%);
+      color: #f5f5f7;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       -webkit-text-size-adjust: 100%;
       -webkit-font-smoothing: antialiased;
@@ -144,14 +164,14 @@
 
     #app-shell {
       width: 100%;
-      max-width: 580px;
+      max-width: 620px;
       margin: 0 auto;
       height: 100vh;
       height: 100dvh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background-color: #09090b;
+      background-color: #09090c;
       position: relative;
       opacity: 0;
     }
@@ -234,12 +254,18 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* Чистая минималистичная карточка без вложенных коробок */
+    /* Обновленная карточка с мягкой глубиной и четким контрастом */
     .m-card {
-      background-color: #111114;
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 16px;
-      transition: border-color 0.16s ease, background-color 0.16s ease;
+      background: linear-gradient(180deg, #15151b 0%, #111116 100%);
+      border: 1px solid rgba(255, 255, 255, 0.085);
+      box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      border-radius: 18px;
+      transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.16s ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      button.m-card:hover {
+        border-color: rgba(229, 193, 123, 0.35);
+      }
     }
 
     select.char-select {
@@ -274,53 +300,80 @@
     }
 
     .mark-cell {
-      height: 74px;
-      border: 1px solid rgba(33, 27, 22, 0.12);
-      background-color: rgba(33, 27, 22, 0.025);
+      min-height: 86px;
+      border: 1.5px solid rgba(33, 27, 22, 0.14);
+      background-color: rgba(33, 27, 22, 0.03);
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 4px;
-      border-radius: 11px;
-      transition: background-color 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+      padding: 6px 4px;
+      border-radius: 12px;
+      transition: background-color 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease, transform 0.12s ease;
+    }
+    .mark-cell:active {
+      transform: scale(0.97);
     }
 
-    .mark-cell.completed {
-      border-color: rgba(224, 86, 86, 0.75);
-      background-color: rgba(224, 86, 86, 0.12);
+    /* Normal / Greed Mode (level 1): чернильная отметка без красной обводки */
+    .mark-cell.completed-normal {
+      border-color: rgba(33, 27, 22, 0.72);
+      background-color: rgba(33, 27, 22, 0.11);
+      box-shadow: inset 0 0 0 1px rgba(33, 27, 22, 0.2);
+    }
+
+    /* Hard / Greedier Mode (level 2): культовая кроваво-красная обводка */
+    .mark-cell.completed-hard {
+      border-color: rgba(204, 48, 48, 0.9);
+      background-color: rgba(224, 68, 68, 0.15);
+      box-shadow: inset 0 0 0 1px rgba(204, 48, 48, 0.38), 0 2px 10px rgba(204, 48, 48, 0.15);
     }
 
     .mark-cell.highlighted {
       border-color: #a6823e;
-      box-shadow: inset 0 0 0 1px rgba(224, 86, 86, 0.65), 0 2px 8px rgba(223, 185, 115, 0.35);
-      background-color: rgba(223, 185, 115, 0.24);
+      box-shadow: inset 0 0 0 1.5px rgba(166, 130, 62, 0.8), 0 2px 10px rgba(223, 185, 115, 0.42);
+      background-color: rgba(223, 185, 115, 0.28);
     }
 
-    .mark-cell.completed.highlighted {
-      border-color: #e05656;
-      box-shadow: inset 0 0 0 1px #a6823e;
-      background-color: rgba(224, 86, 86, 0.2);
+    .mark-cell.completed-normal.highlighted {
+      border-color: #211b16;
+      box-shadow: inset 0 0 0 1.5px #a6823e;
+      background-color: rgba(166, 130, 62, 0.26);
     }
 
-    .mark-check {
+    .mark-cell.completed-hard.highlighted {
+      border-color: #cc3030;
+      box-shadow: inset 0 0 0 1.5px #a6823e;
+      background-color: rgba(224, 68, 68, 0.24);
+    }
+
+    .mark-badge {
       position: absolute;
       top: 5px;
-      right: 6px;
+      right: 5px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 700;
+      font-size: 9.5px;
+      font-weight: 800;
       line-height: 1;
-      color: #e05656;
+      padding: 2px 4px;
+      border-radius: 4px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.14s ease;
     }
 
-    .mark-cell.completed .mark-check {
+    .mark-cell.completed-normal .mark-badge {
       opacity: 1;
+      background-color: #211b16;
+      color: #f0e8d6;
+    }
+
+    .mark-cell.completed-hard .mark-badge {
+      opacity: 1;
+      background-color: #cc3030;
+      color: #ffffff;
     }
 
     .run-row {
@@ -421,7 +474,7 @@
 
     .dock-btn .dock-label {
       white-space: nowrap;
-      font-size: 9.8px;
+      font-size: 10.8px;
       line-height: 14px;
       font-weight: 600;
       letter-spacing: -0.01em;
@@ -481,14 +534,14 @@
       }
 
       #app-shell {
-        max-width: 1300px;
+        max-width: 1400px;
         height: calc(100vh - 36px);
         height: calc(100dvh - 36px);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        box-shadow: 0 32px 90px rgba(0, 0, 0, 0.88);
         display: grid;
-        grid-template-columns: 204px 1fr;
+        grid-template-columns: 228px 1fr;
         grid-template-rows: auto 1fr;
       }
 
@@ -520,14 +573,14 @@
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        gap: 11px;
-        height: 40px;
-        padding: 0 12px;
+        gap: 12px;
+        height: 44px;
+        padding: 0 14px;
         flex-shrink: 0;
       }
 
       .dock-btn .dock-label {
-        font-size: 13px;
+        font-size: 0.9375rem;
         font-weight: 500;
         letter-spacing: 0;
       }
@@ -569,25 +622,27 @@
 
     @media (min-width: 1024px) {
       html[data-tab="hero"] #tab-hero {
-        overflow: hidden;
-        padding-bottom: 20px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-bottom: 84px;
       }
 
       #hero-desktop-grid {
-        height: 100%;
+        height: auto;
+        align-items: start;
       }
 
       #hero-left-col {
-        height: 100%;
-        overflow-y: auto;
-        padding-right: 4px;
+        height: auto;
+        overflow: visible;
+        padding-right: 0;
       }
 
       #hero-right-col {
-        height: 100%;
-        overflow-y: auto;
-        padding-right: 6px;
-        padding-bottom: 76px;
+        height: auto;
+        overflow: visible;
+        padding-right: 0;
+        padding-bottom: 0;
       }
     }
   </style>
@@ -598,24 +653,61 @@
 
     <!-- 1. MINIMALIST HEADER -->
     <header id="app-header" class="no-select">
-      <div class="min-w-0 flex-1 flex items-center gap-2 sm:gap-2.5">
-        <div class="hidden sm:block w-2 h-2 rounded-full bg-isaac-crimson shrink-0"></div>
-        <div class="min-w-0">
-          <h1 class="font-display text-[13px] sm:text-[15px] md:text-[16px] font-extrabold tracking-wider text-isaac-text leading-none whitespace-nowrap">
+      <div class="min-w-0 flex-1 flex items-center gap-2 sm:gap-3 overflow-hidden">
+        <div class="hidden sm:flex w-2.5 h-2.5 rounded-full bg-isaac-crimson shadow-[0_0_10px_rgba(229,88,88,0.8)] shrink-0"></div>
+        <div class="min-w-0 overflow-hidden">
+          <h1 class="font-display text-[13px] sm:text-base md:text-lg font-extrabold tracking-wider text-isaac-text leading-none truncate">
             ISAAC <span class="text-isaac-gold">REP+</span>
           </h1>
-          <p id="header-subtitle" class="text-[9.5px] sm:text-[11px] text-isaac-muted leading-none mt-1 whitespace-nowrap">
-            Справочник • Hard Mode
+          <p id="header-subtitle" class="hidden sm:block text-xs text-isaac-muted leading-none mt-1 truncate">
+            Справочник • Hard &amp; Normal
           </p>
         </div>
       </div>
 
       <div class="shrink-0 flex items-center gap-1 sm:gap-1.5 md:gap-2">
+        <!-- Размер шрифта (Dropdown) -->
+        <div id="font-dropdown-wrap" class="relative">
+          <button id="font-dropdown-btn" type="button" onclick="toggleFontDropdown(event)"
+            aria-haspopup="listbox" aria-expanded="false"
+            class="h-8 md:h-9 px-2 sm:px-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.09] font-mono text-xs font-semibold text-isaac-text flex items-center gap-1 transition-colors"
+            title="Размер шрифта / Font Size">
+            <span id="lbl-font-scale">100%</span>
+            <svg id="font-dropdown-chevron" class="w-3 h-3 opacity-70 transition-transform duration-150" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <div id="font-dropdown-menu" role="listbox"
+            class="hidden absolute right-0 mt-1.5 w-48 rounded-xl bg-[#16161b] border border-white/[0.1] shadow-2xl py-1 z-50 overflow-hidden">
+            <button type="button" onclick="setFontScale('sm')" data-font-opt="sm"
+              class="w-full px-3.5 py-2 text-left text-xs font-medium flex items-center justify-between hover:bg-white/[0.05] transition-colors text-isaac-muted">
+              <span id="font-opt-sm-lbl">Компактный (90%)</span>
+              <span class="font-check font-mono text-isaac-gold opacity-0">✓</span>
+            </button>
+            <button type="button" onclick="setFontScale('md')" data-font-opt="md"
+              class="w-full px-3.5 py-2 text-left text-xs font-medium flex items-center justify-between hover:bg-white/[0.05] transition-colors text-isaac-text">
+              <span id="font-opt-md-lbl">Обычный (100%)</span>
+              <span class="font-check font-mono text-isaac-gold">✓</span>
+            </button>
+            <button type="button" onclick="setFontScale('lg')" data-font-opt="lg"
+              class="w-full px-3.5 py-2 text-left text-xs font-medium flex items-center justify-between hover:bg-white/[0.05] transition-colors text-isaac-muted">
+              <span id="font-opt-lg-lbl">Крупный (112%)</span>
+              <span class="font-check font-mono text-isaac-gold opacity-0">✓</span>
+            </button>
+            <button type="button" onclick="setFontScale('xl')" data-font-opt="xl"
+              class="w-full px-3.5 py-2 text-left text-xs font-medium flex items-center justify-between hover:bg-white/[0.05] transition-colors text-isaac-muted">
+              <span id="font-opt-xl-lbl">Очень крупный (122%)</span>
+              <span class="font-check font-mono text-isaac-gold opacity-0">✓</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Синхронизация -->
         <button id="btn-open-sync" type="button" onclick="openSyncModal()"
-          class="h-7 md:h-8 px-1.5 sm:px-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[10.5px] md:text-[11px] font-medium text-isaac-text flex items-center gap-1.5 transition-colors"
+          class="h-8 md:h-9 px-2 sm:px-3 rounded-lg bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.09] text-xs font-medium text-isaac-text flex items-center gap-1.5 transition-colors"
           title="Синхронизация прогресса / Sync Progress">
-          <svg class="w-3.5 h-3.5 text-isaac-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="w-4 h-4 text-isaac-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
             <path d="M3 3v5h5"/>
             <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
@@ -628,7 +720,7 @@
         <div id="lang-dropdown-wrap" class="relative">
           <button id="lang-dropdown-btn" type="button" onclick="toggleLangDropdown(event)"
             aria-haspopup="listbox" aria-expanded="false"
-            class="h-7 md:h-8 px-1.5 sm:px-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] font-mono text-[10px] md:text-[11px] font-semibold text-isaac-gold flex items-center gap-1 transition-colors">
+            class="h-7 md:h-8 px-1.5 sm:px-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] font-mono text-xs md:text-[13px] font-semibold text-isaac-gold flex items-center gap-1 transition-colors">
             <svg class="hidden sm:block w-3.5 h-3.5 opacity-75 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
               <circle cx="12" cy="12" r="10"/>
               <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -660,11 +752,11 @@
         </div>
 
         <!-- Счетчики прогресса -->
-        <div class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 h-7 md:h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] font-mono text-[10px] sm:text-[11px] md:text-[11.5px] font-semibold tabular-nums whitespace-nowrap">
+        <div class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 h-8 md:h-9 rounded-lg bg-white/[0.04] border border-white/[0.09] font-mono text-[11px] sm:text-xs font-semibold tabular-nums whitespace-nowrap">
           <span class="flex items-center gap-1 text-isaac-crimson" id="marks-pill-wrap">
             <span id="global-marks-pill">0/408</span>
           </span>
-          <span class="text-white/15">•</span>
+          <span class="text-white/20">•</span>
           <span class="flex items-center gap-1 text-isaac-gold" id="secrets-pill-wrap">
             <span id="global-secrets-pill">0/641</span>
           </span>
@@ -679,7 +771,7 @@
       <!-- ВКЛАДКА 1: ГЕРОЙ (POST-IT NOTE, 6 ЗАБЕГОВ, СХЕМА МАРШРУТОВ)         -->
       <!-- =================================================================== -->
       <section id="tab-hero" class="tab-panel">
-        <div id="hero-desktop-grid" class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-4 items-start">
+        <div id="hero-desktop-grid" class="grid grid-cols-1 lg:grid-cols-[444px_1fr] gap-5 items-start">
 
           <!-- Левая колонка: Выбор героя, тактика и Пергамент (статична на ПК) -->
           <div id="hero-left-col" class="space-y-3.5 no-scrollbar">
@@ -688,12 +780,12 @@
                 <button id="btn-pool-normal" type="button" onclick="switchCharPool('normal')"
                   class="h-8 rounded-lg text-xs font-semibold bg-white/[0.08] text-isaac-text flex items-center justify-center gap-1.5 transition-colors">
                   <span id="lbl-pool-normal">Обычные (17)</span>
-                  <span id="pool-normal-count" class="font-mono text-[10px] opacity-75 tabular-nums">0/204</span>
+                  <span id="pool-normal-count" class="font-mono text-xs opacity-75 tabular-nums">0/204</span>
                 </button>
                 <button id="btn-pool-tainted" type="button" onclick="switchCharPool('tainted')"
                   class="h-8 rounded-lg text-xs font-medium text-isaac-muted hover:text-isaac-text flex items-center justify-center gap-1.5 transition-colors">
                   <span>Tainted (17)</span>
-                  <span id="pool-tainted-count" class="font-mono text-[10px] opacity-75 tabular-nums">0/204</span>
+                  <span id="pool-tainted-count" class="font-mono text-xs opacity-75 tabular-nums">0/204</span>
                 </button>
               </div>
 
@@ -701,27 +793,27 @@
                 <div id="selected-char-avatar" class="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center shrink-0"></div>
                 <div class="flex-1 min-w-0">
                   <select id="character-select" onchange="selectCharacter(this.value)"
-                    class="char-select w-full h-10 pl-3 pr-8 rounded-xl bg-black/40 border border-white/[0.08] text-xs font-semibold text-isaac-text focus:outline-none focus:border-isaac-gold truncate">
+                    class="char-select w-full h-10 pl-3 pr-8 rounded-xl bg-black/40 border border-white/[0.08] text-[15px] font-semibold text-isaac-text focus:outline-none focus:border-isaac-gold truncate">
                   </select>
                 </div>
                 <div class="shrink-0 min-w-[52px] h-10 px-2 rounded-xl bg-white/[0.03] border border-white/[0.07] flex flex-col items-center justify-center">
                   <span id="selected-char-progress" class="font-mono text-xs font-bold text-isaac-gold leading-none tabular-nums">0/12</span>
-                  <span id="lbl-char-sheet" class="text-[9px] font-medium text-isaac-muted uppercase mt-0.5">Лист</span>
+                  <span id="lbl-char-sheet" class="text-[13px] font-medium text-isaac-muted uppercase mt-0.5">Лист</span>
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-2">
                 <button id="btn-reset-char" type="button" onclick="openResetModal()"
-                  class="h-8 rounded-lg bg-white/[0.03] border border-white/[0.07] text-[11px] font-medium text-isaac-muted hover:text-isaac-text transition-colors">
+                  class="h-8 rounded-lg bg-white/[0.03] border border-white/[0.07] text-[13px] font-medium text-isaac-muted hover:text-isaac-text transition-colors">
                   Сбросить героя
                 </button>
                 <button id="btn-complete-all" type="button" onclick="completeAllCharMarks()"
-                  class="h-8 rounded-lg bg-isaac-gold/10 border border-isaac-gold/35 text-[11px] font-semibold text-isaac-gold hover:bg-isaac-gold/15 transition-colors">
+                  class="h-8 rounded-lg bg-isaac-gold/10 border border-isaac-gold/35 text-[13px] font-semibold text-isaac-gold hover:bg-isaac-gold/15 transition-colors">
                   Закрыть все 12
                 </button>
               </div>
 
-              <p id="hero-trait-box" class="text-[11.5px] text-isaac-muted leading-relaxed border-t border-white/[0.06] pt-2.5"></p>
+              <p id="hero-trait-box" class="text-[13.5px] text-isaac-muted leading-relaxed border-t border-white/[0.06] pt-2.5"></p>
             </div>
 
             <!-- Пергаментный Post-It Note -->
@@ -731,7 +823,7 @@
                   <span id="postit-char-name" class="font-display text-base font-extrabold tracking-wide text-isaac-ink truncate">
                     Isaac
                   </span>
-                  <span id="postit-tainted-pill" class="hidden px-1.5 py-0.5 rounded bg-isaac-crimson text-isaac-text text-[9px] font-bold uppercase tracking-wider shrink-0">
+                  <span id="postit-tainted-pill" class="hidden px-1.5 py-0.5 rounded bg-isaac-crimson text-isaac-text text-[13px] font-bold uppercase tracking-wider shrink-0">
                     Tainted
                   </span>
                 </div>
@@ -742,8 +834,20 @@
 
               <div id="marks-grid" class="grid grid-cols-4 gap-2"></div>
 
-              <p id="lbl-postit-sync" class="text-[10px] font-medium text-isaac-ink/70 text-center mt-2.5">
-                Нажатие на метку синхронизирует её с каталогом 641 секретов
+              <div id="postit-legend" class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-3 pt-2.5 border-t border-isaac-ink/15 text-[13px] font-semibold text-isaac-ink/80">
+                <span class="inline-flex items-center gap-1">
+                  <span class="inline-block px-1 py-0.5 rounded bg-[#cc3030] text-white font-mono text-[13.5px] leading-none">H</span>
+                  <span id="lbl-legend-hard">Hard / Greedier</span>
+                </span>
+                <span class="inline-flex items-center gap-1">
+                  <span class="inline-block px-1 py-0.5 rounded bg-[#211b16] text-[#f0e8d6] font-mono text-[13.5px] leading-none">N</span>
+                  <span id="lbl-legend-normal">Normal / Greed</span>
+                </span>
+                <span id="postit-mode-breakdown" class="font-mono text-[13px] text-isaac-ink/70"></span>
+              </div>
+
+              <p id="lbl-postit-sync" class="text-[13px] font-medium text-isaac-ink/70 text-center mt-1.5">
+                Клик по метке: Hard (H) → Normal (N) → Снять • Синхронизируется с 641 секретами
               </p>
             </div>
           </div>
@@ -753,7 +857,7 @@
             <div class="m-card p-4 space-y-3 no-select">
               <div>
                 <h2 id="lbl-runs-title" class="text-sm font-semibold text-isaac-text">6 оптимальных забегов для закрытия листа</h2>
-                <p id="lbl-runs-sub" class="text-xs text-isaac-muted mt-0.5">Нажми на забег, чтобы подсветить цели (повторный клик снимает)</p>
+                <p id="lbl-runs-sub" class="text-sm text-isaac-muted mt-0.5">Нажми на забег, чтобы подсветить цели (повторный клик снимает)</p>
               </div>
 
               <div id="run-batch-bar" class="rounded-xl bg-white/[0.02] border border-white/[0.07] px-3 flex items-center justify-between gap-2 h-[54px] overflow-hidden"></div>
@@ -763,13 +867,13 @@
             <div class="m-card p-4 space-y-3 no-select">
               <div>
                 <h2 id="lbl-flow-title" class="text-sm font-semibold text-isaac-text">Схема ветвления маршрутов</h2>
-                <p id="lbl-flow-sub" class="text-xs text-isaac-muted mt-0.5">Нажми на любой узел — условия входа появятся ниже</p>
+                <p id="lbl-flow-sub" class="text-sm text-isaac-muted mt-0.5">Нажми на любой узел — условия входа появятся ниже</p>
               </div>
 
               <div class="bg-black/35 border border-white/[0.06] rounded-xl p-2.5">
                 <div class="flex justify-center">
                   <button type="button" onclick="selectFlowNode('node_start')" data-node="node_start"
-                    class="flow-node w-full max-w-[260px] h-9 px-3 text-xs font-semibold text-isaac-text flex items-center justify-center">
+                    class="flow-node w-full max-w-[260px] h-9 px-3 text-[15px] font-semibold text-isaac-text flex items-center justify-center">
                     <span id="fn-start">Этажи 1–2 (Basement)</span>
                   </button>
                 </div>
@@ -781,73 +885,73 @@
                 <div class="grid grid-cols-3 gap-1.5 items-start">
                   <!-- Ветка 1 -->
                   <div class="flex flex-col items-center">
-                    <span id="fn-branch-alt" class="text-[9px] font-semibold uppercase tracking-wider text-isaac-gold mb-1">Альт-путь</span>
+                    <span id="fn-branch-alt" class="text-[13px] font-semibold uppercase tracking-wider text-isaac-gold mb-1">Альт-путь</span>
                     <button type="button" onclick="selectFlowNode('node_downpour')" data-node="node_downpour" class="flow-node w-full py-1.5 px-1 text-center">
-                      <span class="block text-[10px] font-semibold text-isaac-text leading-tight">Downpour II</span>
-                      <span id="fn-downpour-sub" class="block font-mono text-[8.5px] text-isaac-muted mt-0.5">Зеркало • Нож 1</span>
+                      <span class="block text-[15px] font-semibold text-isaac-text leading-tight">Downpour II</span>
+                      <span id="fn-downpour-sub" class="block font-mono text-sm text-isaac-muted mt-0.5">Зеркало • Нож 1</span>
                     </button>
                     <div class="w-px h-2 bg-white/15"></div>
                     <button type="button" onclick="selectFlowNode('node_mines')" data-node="node_mines" class="flow-node w-full py-1.5 px-1 text-center">
-                      <span class="block text-[10px] font-semibold text-isaac-text leading-tight">Mines II</span>
-                      <span id="fn-mines-sub" class="block font-mono text-[8.5px] text-isaac-muted mt-0.5">3 кнопки • Нож 2</span>
+                      <span class="block text-[15px] font-semibold text-isaac-text leading-tight">Mines II</span>
+                      <span id="fn-mines-sub" class="block font-mono text-sm text-isaac-muted mt-0.5">3 кнопки • Нож 2</span>
                     </button>
                     <div class="w-px h-2 bg-white/15"></div>
                     <button type="button" onclick="selectFlowNode('node_mausoleum')" data-node="node_mausoleum" class="flow-node w-full py-1.5 px-1 text-center">
-                      <span class="block text-[10px] font-semibold text-isaac-text leading-tight">Mausoleum II</span>
-                      <span id="fn-maus-sub" class="block font-mono text-[8.5px] text-isaac-gold mt-0.5">Rush/Hush &lt;25м</span>
+                      <span class="block text-[15px] font-semibold text-isaac-text leading-tight">Mausoleum II</span>
+                      <span id="fn-maus-sub" class="block font-mono text-xs text-isaac-gold mt-0.5">Rush/Hush &lt;25м</span>
                     </button>
                     <div class="w-px h-2 bg-white/15"></div>
                     <button type="button" onclick="selectFlowNode('node_mother')" data-node="node_mother" class="flow-node crimson-node w-full py-1.5 px-1 text-center">
-                      <span class="block text-[10px] font-bold text-isaac-text leading-tight">MOTHER</span>
-                      <span class="block font-mono text-[8.5px] text-isaac-gold mt-0.5">Corpse II</span>
+                      <span class="block text-xs font-bold text-isaac-text leading-tight">MOTHER</span>
+                      <span class="block font-mono text-xs text-isaac-gold mt-0.5">Corpse II</span>
                     </button>
                   </div>
 
                   <!-- Ветка 2 -->
                   <div class="flex flex-col items-center">
-                    <span id="fn-branch-home" class="text-[9px] font-semibold uppercase tracking-wider text-isaac-crimson mb-1">Путь домой</span>
+                    <span id="fn-branch-home" class="text-[13px] font-semibold uppercase tracking-wider text-isaac-crimson mb-1">Путь домой</span>
                     <button type="button" onclick="selectFlowNode('node_depths')" data-node="node_depths" class="flow-node w-full py-1.5 px-1 text-center">
-                      <span id="fn-depths-title" class="block text-[10px] font-semibold text-isaac-text leading-tight">Depths II (6 эт.)</span>
-                      <span id="fn-depths-sub" class="block font-mono text-[8.5px] text-isaac-muted mt-0.5">Череп X + Fool</span>
+                      <span id="fn-depths-title" class="block text-[15px] font-semibold text-isaac-text leading-tight">Depths II (6 эт.)</span>
+                      <span id="fn-depths-sub" class="block font-mono text-sm text-isaac-muted mt-0.5">Череп X + Fool</span>
                     </button>
                     <div class="w-px h-2 bg-white/15"></div>
                     <button type="button" onclick="selectFlowNode('node_strangedoor')" data-node="node_strangedoor" class="flow-node w-full py-1.5 px-1 text-center">
-                      <span id="fn-sdoor-title" class="block text-[10px] font-semibold text-isaac-text leading-tight">Странная дверь</span>
-                      <span id="fn-sdoor-sub" class="block font-mono text-[8.5px] text-isaac-muted mt-0.5">Фото + Ascent</span>
+                      <span id="fn-sdoor-title" class="block text-[15px] font-semibold text-isaac-text leading-tight">Странная дверь</span>
+                      <span id="fn-sdoor-sub" class="block font-mono text-sm text-isaac-muted mt-0.5">Фото + Ascent</span>
                     </button>
                     <div class="w-px h-2 bg-white/15"></div>
                     <button type="button" onclick="selectFlowNode('node_home')" data-node="node_home" class="flow-node w-full py-1.5 px-1 text-center">
-                      <span id="fn-home-title" class="block text-[10px] font-semibold text-isaac-text leading-tight">Home (Чулан)</span>
-                      <span class="block font-mono text-[8.5px] text-isaac-gold mt-0.5">Cracked Key</span>
+                      <span id="fn-home-title" class="block text-[15px] font-semibold text-isaac-text leading-tight">Home (Чулан)</span>
+                      <span class="block font-mono text-xs text-isaac-gold mt-0.5">Cracked Key</span>
                     </button>
                     <div class="w-px h-2 bg-white/15"></div>
                     <button type="button" onclick="selectFlowNode('node_beast')" data-node="node_beast" class="flow-node crimson-node w-full py-1.5 px-1 text-center">
-                      <span class="block text-[10px] font-bold text-isaac-text leading-tight">THE BEAST</span>
-                      <span class="block font-mono text-[8.5px] text-isaac-gold mt-0.5">+ Tainted</span>
+                      <span class="block text-xs font-bold text-isaac-text leading-tight">THE BEAST</span>
+                      <span class="block font-mono text-xs text-isaac-gold mt-0.5">+ Tainted</span>
                     </button>
                   </div>
 
                   <!-- Ветка 3 -->
                   <div class="flex flex-col items-center">
-                    <span id="fn-branch-main" class="text-[9px] font-semibold uppercase tracking-wider text-isaac-muted mb-1">Основной</span>
+                    <span id="fn-branch-main" class="text-[13px] font-semibold uppercase tracking-wider text-isaac-muted mb-1">Основной</span>
                     <button type="button" onclick="selectFlowNode('node_bossrush')" data-node="node_bossrush" class="flow-node w-full py-1.5 px-1 text-center">
-                      <span class="block text-[10px] font-semibold text-isaac-text leading-tight">Boss Rush</span>
-                      <span id="fn-rush-sub" class="block font-mono text-[8.5px] text-isaac-gold mt-0.5">&lt; 20:00 (6 эт.)</span>
+                      <span class="block text-[15px] font-semibold text-isaac-text leading-tight">Boss Rush</span>
+                      <span id="fn-rush-sub" class="block font-mono text-xs text-isaac-gold mt-0.5">&lt; 20:00 (6 эт.)</span>
                     </button>
                     <div class="w-px h-2 bg-white/15"></div>
                     <button type="button" onclick="selectFlowNode('node_womb')" data-node="node_womb" class="flow-node w-full py-1.5 px-1 text-center">
-                      <span id="fn-womb-title" class="block text-[10px] font-semibold text-isaac-text leading-tight">Womb II (8 эт.)</span>
-                      <span class="block font-mono text-[8.5px] text-isaac-muted mt-0.5">It Lives</span>
+                      <span id="fn-womb-title" class="block text-[15px] font-semibold text-isaac-text leading-tight">Womb II (8 эт.)</span>
+                      <span class="block font-mono text-sm text-isaac-muted mt-0.5">It Lives</span>
                     </button>
                     <div class="w-px h-2 bg-white/15"></div>
                     <button type="button" onclick="selectFlowNode('node_hush_void')" data-node="node_hush_void" class="flow-node w-full py-1.5 px-1 text-center">
-                      <span class="block text-[10px] font-semibold text-isaac-text leading-tight">Hush → Void</span>
-                      <span class="block font-mono text-[8.5px] text-isaac-gold mt-0.5">&lt; 30:00 (100%)</span>
+                      <span class="block text-[15px] font-semibold text-isaac-text leading-tight">Hush → Void</span>
+                      <span class="block font-mono text-xs text-isaac-gold mt-0.5">&lt; 30:00 (100%)</span>
                     </button>
                     <div class="w-px h-2 bg-white/15"></div>
                     <button type="button" onclick="selectFlowNode('node_megasatan')" data-node="node_megasatan" class="flow-node crimson-node w-full py-1.5 px-1 text-center">
-                      <span class="block text-[10px] font-bold text-isaac-text leading-tight">MEGA SATAN</span>
-                      <span class="block font-mono text-[8.5px] text-isaac-gold mt-0.5">Chest / Dark</span>
+                      <span class="block text-xs font-bold text-isaac-text leading-tight">MEGA SATAN</span>
+                      <span class="block font-mono text-xs text-isaac-gold mt-0.5">Chest / Dark</span>
                     </button>
                   </div>
                 </div>
@@ -867,8 +971,8 @@
         <div class="space-y-2.5 no-select">
           <div class="flex items-center justify-between px-0.5">
             <div>
-              <h2 id="lbl-floors-title" class="text-sm md:text-base font-semibold text-isaac-text">Этажи, развилки, Void и проклятия</h2>
-              <p id="lbl-floors-sub" class="text-xs text-isaac-muted mt-0.5">Механики каждой главы и способы снятия Curses</p>
+              <h2 id="lbl-floors-title" class="text-base md:text-lg font-semibold text-isaac-text">Этажи, развилки, Void и проклятия</h2>
+              <p id="lbl-floors-sub" class="text-sm text-isaac-muted mt-0.5">Механики каждой главы и способы снятия Curses</p>
             </div>
             <span id="floors-shown-count" class="font-mono text-xs font-semibold text-isaac-gold tabular-nums shrink-0">11</span>
           </div>
@@ -889,13 +993,13 @@
               <div class="flex items-center gap-2.5">
                 <div id="planetarium-tool-icon" class="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center shrink-0"></div>
                 <div>
-                  <h3 id="lbl-plan-title" class="text-xs sm:text-sm font-semibold text-isaac-text">Калькулятор Планетария</h3>
-                  <p id="lbl-plan-sub" class="text-[11px] text-isaac-muted">Пропущенные сокровищницы (1–6 эт.)</p>
+                  <h3 id="lbl-plan-title" class="text-sm sm:text-base font-semibold text-isaac-text">Калькулятор Планетария</h3>
+                  <p id="lbl-plan-sub" class="text-[13px] text-isaac-muted">Пропущенные сокровищницы (1–6 эт.)</p>
                 </div>
               </div>
               <div class="text-right min-w-[60px]">
                 <span id="planetarium-chance" class="font-mono text-xl font-bold text-isaac-gold tabular-nums">1%</span>
-                <span id="lbl-plan-chance" class="block text-[9.5px] text-isaac-muted uppercase tracking-wider">Шанс</span>
+                <span id="lbl-plan-chance" class="block text-[13.5px] text-isaac-muted uppercase tracking-wider">Шанс</span>
               </div>
             </div>
 
@@ -910,7 +1014,7 @@
               </button>
               <div class="text-center min-w-[140px]">
                 <span id="planetarium-skipped" class="font-mono text-base font-bold text-isaac-text tabular-nums">0</span>
-                <span id="lbl-plan-skipped" class="block text-[11px] text-isaac-muted">пропущено сокровищниц</span>
+                <span id="lbl-plan-skipped" class="block text-[13px] text-isaac-muted">пропущено сокровищниц</span>
               </div>
               <button type="button" onclick="changePlanetarium(1)"
                 class="w-11 h-10 rounded-lg bg-isaac-crimson text-isaac-text text-lg font-bold flex items-center justify-center">
@@ -918,7 +1022,7 @@
               </button>
             </div>
 
-            <p id="lbl-plan-note" class="text-xs text-isaac-muted leading-relaxed"></p>
+            <p id="lbl-plan-note" class="text-sm text-isaac-muted leading-relaxed"></p>
           </div>
 
           <!-- Трекер Sacrifice Room -->
@@ -927,8 +1031,8 @@
               <div class="flex items-center gap-2.5">
                 <div id="sacrifice-tool-icon" class="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center shrink-0"></div>
                 <div>
-                  <h3 id="lbl-sac-title" class="text-xs sm:text-sm font-semibold text-isaac-text">Трекер Sacrifice Room</h3>
-                  <p id="lbl-sac-sub" class="text-[11px] text-isaac-muted">Нажми на номер удара о шипы (1–12)</p>
+                  <h3 id="lbl-sac-title" class="text-sm sm:text-base font-semibold text-isaac-text">Трекер Sacrifice Room</h3>
+                  <p id="lbl-sac-sub" class="text-[13px] text-isaac-muted">Нажми на номер удара о шипы (1–12)</p>
                 </div>
               </div>
               <button id="btn-sac-reset" type="button" onclick="selectSacrificeStep(0)"
@@ -939,7 +1043,7 @@
 
             <div id="sacrifice-grid" class="grid grid-cols-6 gap-1.5"></div>
 
-            <div id="sacrifice-detail" class="rounded-xl bg-white/[0.025] border border-white/[0.06] p-2.5 min-h-[60px] flex items-center text-xs text-isaac-text/90 leading-relaxed"></div>
+            <div id="sacrifice-detail" class="rounded-xl bg-white/[0.025] border border-white/[0.06] p-2.5 min-h-[60px] flex items-center text-sm text-isaac-text/90 leading-relaxed"></div>
           </div>
         </div>
 
@@ -947,8 +1051,8 @@
         <div class="m-card p-4 space-y-3 no-select">
           <div class="flex items-center justify-between gap-2">
             <div>
-              <h3 id="lbl-routine-title" class="text-xs sm:text-sm font-semibold text-isaac-text">Порядок зачистки этажа (Шпаргалка)</h3>
-              <p id="lbl-routine-sub" class="text-[11px] text-isaac-muted mt-0.5">Отмечай шаги во время забега и сбрасывай при спуске в люк</p>
+              <h3 id="lbl-routine-title" class="text-sm sm:text-base font-semibold text-isaac-text">Порядок зачистки этажа (Шпаргалка)</h3>
+              <p id="lbl-routine-sub" class="text-[13px] text-isaac-muted mt-0.5">Отмечай шаги во время забега и сбрасывай при спуске в люк</p>
             </div>
             <button id="btn-routine-reset" type="button" onclick="resetFloorRoutine()"
               class="shrink-0 h-8 px-2.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs font-medium text-isaac-gold">
@@ -960,7 +1064,7 @@
 
         <div class="space-y-2.5 no-select">
           <div class="flex items-center justify-between px-0.5">
-            <h2 id="lbl-rooms-title" class="text-sm md:text-base font-semibold text-isaac-text">Энциклопедия всех 16 типов комнат</h2>
+            <h2 id="lbl-rooms-title" class="text-base md:text-lg font-semibold text-isaac-text">Энциклопедия всех 16 типов комнат</h2>
             <span id="rooms-shown-count" class="font-mono text-xs font-semibold text-isaac-gold tabular-nums">16 / 16</span>
           </div>
           <div id="room-filter-pills" class="filter-strip flex gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
@@ -976,8 +1080,8 @@
         <div class="m-card p-4 space-y-3 no-select">
           <div class="flex items-center justify-between gap-2">
             <div>
-              <h2 id="lbl-codex-title" class="text-sm md:text-base font-semibold text-isaac-text">База: 719 предметов, Сеты и Сделки</h2>
-              <p id="lbl-codex-sub" class="text-xs text-isaac-muted mt-0.5">Все 719 коллекционных предметов (171 активных, 548 пассивных), сделки, трансформации и расходники</p>
+              <h2 id="lbl-codex-title" class="text-base md:text-lg font-semibold text-isaac-text">База: 719 предметов, Сеты и Сделки</h2>
+              <p id="lbl-codex-sub" class="text-sm text-isaac-muted mt-0.5">Все 719 коллекционных предметов (171 активных, 548 пассивных), сделки, трансформации и расходники</p>
             </div>
             <span id="codex-total-badge" class="font-mono text-xs font-semibold px-2.5 py-1 rounded-lg bg-white/[0.04] text-isaac-gold border border-white/[0.07] tabular-nums shrink-0">
               719
@@ -987,7 +1091,7 @@
           <div class="relative">
             <input id="codex-search-input" type="text" oninput="onCodexSearch(this.value)"
               placeholder="Поиск: #118, Brimstone, Sacred Heart, Spun, Guppy, Q4, Jera, Cancer..."
-              class="w-full h-10 pl-3.5 pr-9 rounded-xl bg-black/40 border border-white/[0.08] text-xs text-isaac-text placeholder:text-isaac-muted focus:outline-none focus:border-isaac-gold" />
+              class="w-full h-11 pl-4 pr-10 rounded-xl bg-black/40 border border-white/[0.1] text-sm text-isaac-text placeholder:text-isaac-muted focus:outline-none focus:border-isaac-gold" />
             <button id="codex-search-clear" type="button" onclick="clearCodexSearch()"
               class="hidden absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg text-isaac-muted hover:text-isaac-text flex items-center justify-center font-mono text-xs">
               ✕
@@ -995,7 +1099,7 @@
           </div>
 
           <div class="flex items-center justify-between gap-2">
-            <span id="codex-filtered-count" class="font-mono text-[11px] text-isaac-muted tabular-nums">Показано: 719</span>
+            <span id="codex-filtered-count" class="font-mono text-[13px] text-isaac-muted tabular-nums">Показано: 719</span>
           </div>
 
           <div id="codex-filter-pills" class="filter-strip flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
@@ -1018,8 +1122,8 @@
         <div class="m-card p-4 space-y-3 no-select">
           <div class="flex items-center justify-between gap-2">
             <div>
-              <h2 id="lbl-sec-title" class="text-sm md:text-base font-semibold text-isaac-text">Каталог всех 641 секретов (Secrets)</h2>
-              <p id="lbl-sec-sub" class="text-xs text-isaac-muted">Официальная нумерация #001–#641 • Синхронизация с листом</p>
+              <h2 id="lbl-sec-title" class="text-base md:text-lg font-semibold text-isaac-text">Каталог всех 641 секретов (Secrets)</h2>
+              <p id="lbl-sec-sub" class="text-sm text-isaac-muted">Официальная нумерация #001–#641 • Синхронизация с листом</p>
             </div>
             <span id="secrets-progress-badge" class="font-mono text-xs font-semibold px-2.5 py-1 rounded-lg bg-white/[0.04] text-isaac-gold border border-white/[0.07] tabular-nums shrink-0">
               0 / 641
@@ -1033,19 +1137,19 @@
           <div class="relative">
             <input id="secrets-search-input" type="text" oninput="onSecretSearch(this.value)"
               placeholder="Поиск: #637, Rock Bottom, D6, Mother, Lost..."
-              class="w-full h-10 pl-3.5 pr-9 rounded-xl bg-black/40 border border-white/[0.08] text-xs text-isaac-text placeholder:text-isaac-muted focus:outline-none focus:border-isaac-gold" />
+              class="w-full h-11 pl-4 pr-10 rounded-xl bg-black/40 border border-white/[0.1] text-sm text-isaac-text placeholder:text-isaac-muted focus:outline-none focus:border-isaac-gold" />
             <button id="secrets-search-clear" type="button" onclick="clearSecretSearch()"
               class="hidden absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg text-isaac-muted hover:text-isaac-text flex items-center justify-center font-mono text-xs">
               ✕
             </button>
           </div>
 
-          <div class="flex items-center justify-between gap-2 pt-0.5">
-            <span id="secrets-filtered-count" class="font-mono text-[11px] text-isaac-muted tabular-nums">
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+            <span id="secrets-filtered-count" class="font-mono text-xs sm:text-[13px] text-isaac-muted tabular-nums">
               Показано: 641 из 641
             </span>
             <button id="btn-toggle-hide-unlocked" type="button" onclick="toggleHideUnlockedSecrets()"
-              class="h-7 px-2.5 rounded-lg text-[11px] font-medium border bg-white/[0.04] border-white/[0.08] text-isaac-muted">
+              class="min-h-8 py-1.5 px-3 rounded-lg text-xs font-medium border bg-white/[0.04] border-white/[0.08] text-isaac-muted whitespace-nowrap shrink-0">
               Скрыть открытые: ВЫКЛ
             </button>
           </div>
@@ -1068,14 +1172,14 @@
       <!-- =================================================================== -->
       <section id="tab-bosses" class="tab-panel space-y-4">
         <div class="m-card p-4 space-y-3">
-          <h2 id="lbl-combat-title" class="text-sm md:text-base font-semibold text-isaac-text">4 главных правила выживания в бою</h2>
+          <h2 id="lbl-combat-title" class="text-base md:text-lg font-semibold text-isaac-text">4 главных правила выживания в бою</h2>
           <div id="combat-rules-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
 
         <div class="space-y-2.5">
           <div class="px-0.5">
-            <h2 id="lbl-bosses-title" class="text-sm md:text-base font-semibold text-isaac-text">Тактика против финальных боссов (6)</h2>
-            <p id="lbl-bosses-sub" class="text-xs text-isaac-muted mt-0.5">Ключевые паттерны атак и безопасные зоны</p>
+            <h2 id="lbl-bosses-title" class="text-base md:text-lg font-semibold text-isaac-text">Тактика против финальных боссов (6)</h2>
+            <p id="lbl-bosses-sub" class="text-sm text-isaac-muted mt-0.5">Ключевые паттерны атак и безопасные зоны</p>
           </div>
           <div id="bosses-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 items-start"></div>
         </div>
@@ -1156,14 +1260,14 @@
       <!-- Карточка прогресса в сайдбаре ПК -->
       <div id="desktop-sidebar-footer">
         <div class="rounded-xl bg-white/[0.025] border border-white/[0.06] p-3 space-y-2">
-          <div class="flex items-center justify-between text-[11px]">
+          <div class="flex items-center justify-between text-[13px]">
             <span id="lbl-pc-deadgod" class="text-isaac-muted font-medium">Dead God+</span>
             <span id="pc-progress-pct" class="font-mono font-bold text-isaac-gold tabular-nums">0%</span>
           </div>
           <div class="w-full h-1 bg-white/[0.08] rounded-full overflow-hidden">
             <div id="pc-progress-bar" class="h-full bg-isaac-gold transition-all duration-200" style="width: 0%"></div>
           </div>
-          <p id="lbl-pc-tip" class="text-[10px] text-isaac-muted leading-snug">
+          <p id="lbl-pc-tip" class="text-sm text-isaac-muted leading-snug">
             Скролл вкладок и прогресс сохраняются автоматически
           </p>
         </div>
@@ -1174,9 +1278,9 @@
     <div id="reset-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 no-select">
       <div class="bg-[#141418] border border-white/[0.1] rounded-2xl max-w-[360px] w-full p-4 space-y-3 shadow-2xl">
         <h3 id="modal-title" class="text-base font-semibold text-isaac-text">Сбросить прогресс?</h3>
-        <p id="modal-desc" class="text-xs text-isaac-muted leading-relaxed"></p>
+        <p id="modal-desc" class="text-sm text-isaac-muted leading-relaxed"></p>
         <div class="space-y-2 pt-1">
-          <button id="btn-modal-reset-char" type="button" onclick="confirmResetCharacter()" class="w-full h-10 rounded-xl bg-isaac-crimson text-xs font-semibold text-isaac-text">
+          <button id="btn-modal-reset-char" type="button" onclick="confirmResetCharacter()" class="w-full h-10 rounded-xl bg-isaac-crimson text-[15px] font-semibold text-isaac-text">
             Очистить текущего персонажа
           </button>
           <button id="btn-modal-reset-all" type="button" onclick="confirmResetAll()" class="w-full h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs font-semibold text-isaac-crimson">
@@ -1191,11 +1295,11 @@
 
     <!-- Модальное окно синхронизации прогресса -->
     <div id="sync-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 no-select">
-      <div class="bg-[#141418] border border-white/[0.1] rounded-2xl max-w-[430px] w-full p-4 space-y-3 shadow-2xl max-h-[90dvh] overflow-y-auto">
+      <div class="bg-[#141418] border border-white/[0.1] rounded-2xl max-w-[480px] w-full p-4 sm:p-5 space-y-3.5 shadow-2xl max-h-[92dvh] overflow-y-auto overflow-x-hidden">
         <div class="flex items-center justify-between gap-2 border-b border-white/[0.07] pb-2.5">
           <div>
             <h3 id="sync-modal-title" class="text-sm font-bold text-isaac-text">Синхронизация ПК ↔ Телефон</h3>
-            <p id="sync-modal-sub" class="text-[11px] text-isaac-muted mt-0.5">Перенос всех 408 меток и 641 секретов между устройствами</p>
+            <p id="sync-modal-sub" class="text-[13px] text-isaac-muted mt-0.5">Перенос всех 408 меток и 641 секретов между устройствами</p>
           </div>
           <button type="button" onclick="closeSyncModal()"
             class="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] text-isaac-muted hover:text-isaac-text flex items-center justify-center font-mono text-xs">
@@ -1205,45 +1309,47 @@
 
         <div class="rounded-xl bg-white/[0.025] border border-white/[0.06] p-3 space-y-2">
           <div class="text-xs font-semibold text-isaac-gold" id="lbl-sync-step1">1. Быстрый перенос по ссылке или коду</div>
-          <p class="text-[11px] text-isaac-muted leading-relaxed" id="lbl-sync-step1-desc">
+          <p class="text-[13px] text-isaac-muted leading-relaxed" id="lbl-sync-step1-desc">
             Скопируй ссылку и отправь себе (например, в «Избранное» Telegram). При открытии на другом устройстве прогресс загрузится автоматически.
           </p>
           <div class="grid grid-cols-2 gap-2">
             <button id="btn-copy-sync-link" type="button" onclick="copySyncLink()"
-              class="h-9 px-2.5 rounded-lg bg-isaac-crimson text-[11px] font-semibold text-isaac-text">
+              class="h-9 px-2.5 rounded-lg bg-isaac-crimson text-[13px] font-semibold text-isaac-text">
               Скопировать ссылку
             </button>
             <button id="btn-copy-sync-code" type="button" onclick="copySyncCode()"
-              class="h-9 px-2.5 rounded-lg bg-isaac-gold/10 border border-isaac-gold/35 text-[11px] font-semibold text-isaac-gold">
+              class="h-9 px-2.5 rounded-lg bg-isaac-gold/10 border border-isaac-gold/35 text-[13px] font-semibold text-isaac-gold">
               Скопировать код
             </button>
           </div>
           <div class="flex gap-1.5 pt-1">
             <input id="sync-code-input" type="text" placeholder="Вставь код ISAAC1:... или ссылку"
-              class="flex-1 min-w-0 h-9 px-2.5 rounded-lg bg-black/40 border border-white/[0.08] font-mono text-[11px] text-isaac-text placeholder:text-isaac-muted focus:outline-none focus:border-isaac-gold" />
+              class="flex-1 min-w-0 h-9 px-2.5 rounded-lg bg-black/40 border border-white/[0.08] font-mono text-[13px] text-isaac-text placeholder:text-isaac-muted focus:outline-none focus:border-isaac-gold" />
             <button id="btn-apply-sync-code" type="button" onclick="applySyncCode()"
-              class="shrink-0 h-9 px-3 rounded-lg bg-isaac-gold text-isaac-bg text-[11px] font-bold">
+              class="shrink-0 h-9 px-3 rounded-lg bg-isaac-gold text-isaac-bg text-[13px] font-bold">
               Загрузить
             </button>
           </div>
         </div>
 
-        <div class="rounded-xl bg-white/[0.025] border border-white/[0.06] p-3 space-y-2">
-          <div class="text-xs font-semibold text-isaac-text" id="lbl-sync-step2">2. Резервный файл (.json) или сейв Steam (.dat)</div>
-          <p class="text-[11px] text-isaac-muted leading-relaxed" id="lbl-sync-step2-desc">
+        <div id="sync-import-summary" class="hidden rounded-xl bg-isaac-gold/[0.08] border border-isaac-gold/35 p-3 text-xs text-isaac-text leading-relaxed"></div>
+
+        <div class="rounded-xl bg-white/[0.025] border border-white/[0.06] p-3.5 space-y-2.5">
+          <div class="text-sm font-semibold text-isaac-text" id="lbl-sync-step2">2. Резервный файл (.json) или сейв Steam (.dat)</div>
+          <p class="text-[13px] text-isaac-muted leading-relaxed break-words [overflow-wrap:anywhere]" id="lbl-sync-step2-desc">
             В Repentance+ активный сейв лежит в <code class="text-isaac-gold">Steam/userdata/&lt;ID&gt;/250900/remote/rep+persistentgamedata1.dat</code> (или в <code class="text-isaac-gold">Documents/My Games/Binding of Isaac Repentance+</code>). Нажми <strong class="text-isaac-text">Alt + F2</strong> в меню Stats → Secrets в игре, чтобы синхронизировать Steam и файл.
           </p>
           <div class="grid grid-cols-2 gap-2">
             <button id="btn-export-json" type="button" onclick="exportJsonBackup()"
-              class="h-9 px-2.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[11px] font-semibold text-isaac-text hover:border-isaac-gold">
+              class="h-9 px-2.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[13px] font-semibold text-isaac-text hover:border-isaac-gold">
               Скачать .json
             </button>
-            <label class="h-9 px-2.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[11px] font-semibold text-isaac-text hover:border-isaac-gold flex items-center justify-center cursor-pointer">
+            <label class="h-9 px-2.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[13px] font-semibold text-isaac-text hover:border-isaac-gold flex items-center justify-center cursor-pointer">
               <span id="lbl-import-json">Открыть .json</span>
               <input type="file" accept=".json,application/json" onchange="importJsonBackup(event)" class="hidden" />
             </label>
           </div>
-          <label class="w-full h-9 px-3 rounded-lg bg-isaac-gold/10 border border-isaac-gold/35 text-[11px] font-semibold text-isaac-gold hover:bg-isaac-gold/15 flex items-center justify-center cursor-pointer">
+          <label class="w-full h-9 px-3 rounded-lg bg-isaac-gold/10 border border-isaac-gold/35 text-[13px] font-semibold text-isaac-gold hover:bg-isaac-gold/15 flex items-center justify-center cursor-pointer">
             <span id="lbl-import-dat">Импорт сейва Steam (persistentgamedata.dat)</span>
             <input type="file" accept=".dat" onchange="importSteamSaveDat(event)" class="hidden" />
           </label>
@@ -1309,9 +1415,12 @@
     }
 
     const _bootLangPref = document.documentElement.getAttribute('data-lang-pref') || 'system';
+    const _bootFontScale = document.documentElement.getAttribute('data-font-scale') || 'md';
     let appState = {
       langPref: _bootLangPref,
       lang: resolveLanguage(_bootLangPref),
+      fontScale: _bootFontScale,
+      lastImportMeta: null,
       activeTab: document.documentElement.getAttribute('data-tab') || 'hero',
       charPool: 'normal',
       selectedChar: 'isaac',
@@ -1344,7 +1453,7 @@
     const I18N = {
       ru: {
         docTitle: 'The Binding of Isaac: Repentance+ — Путеводитель и трекер',
-        headerSub: 'Справочник • Hard Mode',
+        headerSub: 'Справочник • Hard & Normal',
         syncBtn: 'Синхр.',
         langSystemOpt: 'System (Авто)',
         marksTooltip: 'Закрытые метки боссов',
@@ -1360,7 +1469,7 @@
         resetHero: 'Сбросить героя',
         completeAll: 'Закрыть все 12',
         completeAllRemove: 'Снять все 12',
-        postitSync: 'Нажатие на метку синхронизирует её с каталогом 641 секретов',
+        postitSync: 'Клик по метке: Hard (H) → Normal (N) → Снять • Синхронизируется с 641 секретами',
         runsTitle: '6 оптимальных забегов для закрытия листа',
         runsSub: 'Нажми на забег, чтобы подсветить цели (повторный клик снимает)',
         runSelected: 'Выбран',
@@ -1457,7 +1566,7 @@
       },
       en: {
         docTitle: 'The Binding of Isaac: Repentance+ — Minimalist Guide & Tracker',
-        headerSub: 'Companion • Hard Mode',
+        headerSub: 'Companion • Hard & Normal',
         syncBtn: 'Sync',
         langSystemOpt: 'System (Auto)',
         marksTooltip: 'Completed Boss Marks',
@@ -1473,7 +1582,7 @@
         resetHero: 'Reset Hero',
         completeAll: 'Complete All 12',
         completeAllRemove: 'Uncheck All 12',
-        postitSync: 'Tapping a mark syncs directly with the 641 Secrets catalog',
+        postitSync: 'Tap a mark: Hard (H) → Normal (N) → Clear • Syncs with 641 Secrets',
         runsTitle: '6 Optimal Runs to Complete the Sheet',
         runsSub: 'Tap a run to highlight targets (tap again to clear)',
         runSelected: 'Selected',
@@ -3627,282 +3736,318 @@
     // =========================================================================
     // 6. ПОЛНЫЙ КАТАЛОГ ВСЕХ 641 СЕКРЕТОВ (#001–#641) И СИНХРОНИЗАЦИЯ С ЛИСТОМ
     // Официальные номера секретов игры для меток персонажей
+    // 100% проверенные официальные номера секретов игры (achievements.xml / Steam IDs #001–#641)
+    // Метки, требующие именно Hard Mode / Greedier для разблокировки секрета
+    const HARD_ONLY_MARK_KEYS = new Set(['heart', 'greedier']);
+
     const OFFICIAL_MARK_SECRET_MAP = {
+      // Isaac
       'isaac:heart': [167, 'Lost Baby'],
-      'isaac:isaac': [181, 'Buddy Baby'],
-      'isaac:bluebaby': [70, 'The D20'],
-      'isaac:satan': [49, "Mom's Knife"],
+      'isaac:isaac': [106, "Isaac's Tears"],
+      'isaac:bluebaby': [49, 'The D20'],
+      'isaac:satan': [43, "Mom's Knife"],
       'isaac:lamb': [149, 'Missing Poster'],
-      'isaac:bossrush': [29, "Isaac's Head"],
-      'isaac:hush': [273, 'Fart Baby'],
-      'isaac:delirium': [312, 'D Infinity'],
-      'isaac:megasatan': [205, 'Cry Baby'],
-      'isaac:mother': [440, 'Meat Cleaver'],
-      'isaac:beast': [441, 'Options?'],
+      'isaac:bossrush': [70, "Isaac's Head"],
+      'isaac:hush': [179, 'Fart Baby'],
+      'isaac:delirium': [299, 'D Infinity'],
+      'isaac:greedier': [316, 'D1'],
 
+      // Magdalene
       'magdalene:heart': [168, 'Cute Baby'],
-      'magdalene:isaac': [20, 'A Cross'],
-      'magdalene:bluebaby': [71, 'Celtic Cross'],
-      'magdalene:satan': [50, 'Guardian Angel'],
-      'magdalene:lamb': [30, "Maggy's Faith"],
-      'magdalene:bossrush': [110, "Maggy's Bow"],
-      'magdalene:hush': [274, 'Purity'],
-      'magdalene:delirium': [313, 'Eucharist'],
-      'magdalene:megasatan': [206, 'Red Baby'],
-      'magdalene:mother': [442, 'Yuck Heart'],
-      'magdalene:beast': [443, 'Candy Heart'],
+      'magdalene:isaac': [20, 'A Cross (The Relic)'],
+      'magdalene:bluebaby': [50, 'Celtic Cross'],
+      'magdalene:satan': [45, 'Guardian Angel'],
+      'magdalene:lamb': [71, "Maggy's Faith"],
+      'magdalene:bossrush': [109, "Maggy's Bow"],
+      'magdalene:hush': [180, 'Purity'],
+      'magdalene:delirium': [309, 'Eucharist'],
+      'magdalene:greedier': [323, 'Glyph of Balance'],
 
+      // Cain
       'cain:heart': [171, 'Glass Baby'],
-      'cain:isaac': [21, 'Bag of Pennies'],
-      'cain:bluebaby': [34, "Cain's Eye"],
-      'cain:satan': [51, 'Bomb Bag'],
-      'cain:lamb': [75, 'Abel'],
-      'cain:bossrush': [111, "Cain's Other Eye"],
-      'cain:hush': [275, 'D12'],
-      'cain:delirium': [314, 'Silver Dollar'],
-      'cain:megasatan': [207, 'Green Baby'],
-      'cain:mother': [444, "Guppy's Eye"],
-      'cain:beast': [445, 'A Pound of Flesh'],
+      'cain:isaac': [21, 'A Bag of Pennies'],
+      'cain:bluebaby': [75, "Cain's Eye"],
+      'cain:satan': [46, 'A Bag of Bombs'],
+      'cain:lamb': [51, 'Abel'],
+      'cain:bossrush': [110, "Cain's Other Eye"],
+      'cain:hush': [181, 'D12'],
+      'cain:delirium': [306, 'Silver Dollar'],
+      'cain:greedier': [320, 'Sack of Sacks'],
 
+      // Judas
       'judas:heart': [170, 'Shadow Baby'],
       'judas:isaac': [107, 'Guillotine'],
-      'judas:bluebaby': [36, 'The Left Hand'],
-      'judas:satan': [31, "Judas' Tongue"],
-      'judas:lamb': [76, 'Curved Horn'],
-      'judas:bossrush': [112, "Judas' Shadow"],
-      'judas:hush': [276, 'Betrayal'],
-      'judas:delirium': [315, 'Shade'],
-      'judas:megasatan': [208, 'Brown Baby'],
-      'judas:mother': [446, 'Akeldama'],
-      'judas:beast': [447, 'Redemption'],
+      'judas:bluebaby': [77, 'The Left Hand'],
+      'judas:satan': [72, "Judas' Tongue"],
+      'judas:lamb': [52, 'Curved Horn'],
+      'judas:bossrush': [108, "Judas' Shadow"],
+      'judas:hush': [182, 'Betrayal'],
+      'judas:delirium': [303, 'Shade'],
+      'judas:greedier': [313, 'Eye of Belial'],
 
-      'bluebaby:heart': [172, 'Dead Baby'],
-      'bluebaby:isaac': [69, 'The D6'],
-      'bluebaby:bluebaby': [73, 'Fate'],
-      'bluebaby:satan': [52, 'Forget Me Now'],
-      'bluebaby:lamb': [113, 'Cracked Dice'],
+      // ??? (Blue Baby)
+      'bluebaby:heart': [174, 'Dead Baby'],
+      'bluebaby:isaac': [29, 'The D6'],
+      'bluebaby:bluebaby': [113, 'Fate'],
+      'bluebaby:satan': [48, 'Forget Me Now'],
+      'bluebaby:lamb': [73, "???'s Soul"],
       'bluebaby:bossrush': [114, "???'s Only Friend"],
-      'bluebaby:hush': [277, "Fate's Reward"],
-      'bluebaby:delirium': [316, 'King Baby'],
-      'bluebaby:megasatan': [209, 'Blinding Baby'],
-      'bluebaby:mother': [448, 'Eternal D6'],
-      'bluebaby:beast': [449, "Montezuma's Revenge"],
+      'bluebaby:hush': [183, "Fate's Reward"],
+      'bluebaby:delirium': [310, 'King Baby'],
+      'bluebaby:greedier': [321, 'Meconium'],
 
+      // Eve
       'eve:heart': [169, 'Crow Baby'],
-      'eve:isaac': [72, 'The Bird Cage'],
+      'eve:isaac': [76, "Eve's Bird Foot"],
       'eve:bluebaby': [53, 'Sacrificial Dagger'],
-      'eve:satan': [77, 'The Razor'],
-      'eve:lamb': [78, 'Black Lipstick'],
-      'eve:bossrush': [115, "Eve's Mascara"],
-      'eve:hush': [278, 'Athame'],
-      'eve:delirium': [317, 'Dull Razor'],
-      'eve:megasatan': [210, 'Lil Baby'],
-      'eve:mother': [450, 'Bird Cage'],
-      'eve:beast': [451, 'Heartbreak'],
+      'eve:satan': [44, 'The Razor'],
+      'eve:lamb': [111, 'Black Lipstick'],
+      'eve:bossrush': [112, "Eve's Mascara"],
+      'eve:hush': [184, 'Athame'],
+      'eve:delirium': [307, 'Dull Razor'],
+      'eve:greedier': [319, 'Crow Heart'],
 
-      'samson:heart': [175, 'Fighting Baby'],
-      'samson:isaac': [79, 'Bloody Lust'],
-      'samson:bluebaby': [80, 'Blood Penny'],
-      'samson:satan': [81, 'Blood Rights'],
-      'samson:lamb': [33, "Samson's Lock"],
-      'samson:bossrush': [116, "Samson's Chains"],
-      'samson:hush': [279, 'Lusty Blood'],
-      'samson:delirium': [318, 'Bloody Crown'],
-      'samson:megasatan': [211, 'Rage Baby'],
-      'samson:mother': [452, 'Bloody Gust'],
-      'samson:beast': [453, 'Empty Heart'],
+      // Samson
+      'samson:heart': [177, 'Fighting Baby'],
+      'samson:isaac': [54, 'Bloody Lust'],
+      'samson:bluebaby': [55, 'Bloody Penny'],
+      'samson:satan': [56, 'Blood Rights'],
+      'samson:lamb': [74, "Samson's Lock"],
+      'samson:bossrush': [115, "Samson's Chains"],
+      'samson:hush': [185, 'Blind Rage'],
+      'samson:delirium': [308, 'Bloody Crown'],
+      'samson:greedier': [322, 'Stem Cell'],
 
-      'azazel:heart': [174, 'Begotten Baby'],
-      'azazel:isaac': [120, 'Satanic Bible'],
-      'azazel:bluebaby': [117, 'Abaddon'],
-      'azazel:satan': [118, "Daemon's Tail"],
-      'azazel:lamb': [119, 'Demon Baby'],
+      // Azazel
+      'azazel:heart': [172, 'Wrapped Baby'],
+      'azazel:isaac': [126, 'Satanic Bible'],
+      'azazel:bluebaby': [128, 'Abaddon'],
+      'azazel:satan': [127, "Daemon's Tail"],
+      'azazel:lamb': [47, 'Demon Baby'],
       'azazel:bossrush': [9, 'The Nail'],
-      'azazel:hush': [280, 'Maw of the Void'],
-      'azazel:delirium': [319, "Dark Prince's Crown"],
-      'azazel:megasatan': [212, 'Black Baby'],
-      'azazel:mother': [454, "Devil's Crown"],
-      'azazel:beast': [455, 'Lil Abaddon'],
+      'azazel:hush': [186, 'Maw of the Void'],
+      'azazel:delirium': [298, "Dark Prince's Crown"],
+      'azazel:greedier': [317, 'Bat Wing'],
 
-      'lazarus:heart': [173, 'Wrapped Baby'],
-      'lazarus:isaac': [121, "Lazarus' Rags"],
-      'lazarus:bluebaby': [122, 'Store Credit'],
-      'lazarus:satan': [123, 'Broken Ankh'],
-      'lazarus:lamb': [124, "Pandora's Box"],
-      'lazarus:bossrush': [125, 'Missing No.'],
-      'lazarus:hush': [281, 'Empty Vessel'],
-      'lazarus:delirium': [320, 'Compound Fracture'],
-      'lazarus:megasatan': [213, 'Dripping Baby'],
-      'lazarus:mother': [456, 'Tinytoma'],
-      'lazarus:beast': [457, 'Astral Projection'],
+      // Lazarus
+      'lazarus:heart': [173, 'Begotten Baby'],
+      'lazarus:isaac': [116, "Lazarus' Rags"],
+      'lazarus:bluebaby': [118, 'Store Credit'],
+      'lazarus:satan': [117, 'Broken Ankh'],
+      'lazarus:lamb': [119, "Pandora's Box"],
+      'lazarus:bossrush': [105, 'Missing No.'],
+      'lazarus:hush': [187, 'Empty Vessel'],
+      'lazarus:delirium': [305, 'Compound Fracture'],
+      'lazarus:greedier': [325, 'Plan C'],
 
+      // Eden
       'eden:heart': [176, 'Glitch Baby'],
-      'eden:isaac': [126, 'Blank Card'],
-      'eden:bluebaby': [127, 'Mystery Sack'],
-      'eden:satan': [128, 'Book of Secrets'],
-      'eden:lamb': [129, 'Mystic Baby'],
-      'eden:bossrush': [130, 'Undefined'],
-      'eden:hush': [282, "Eden's Blessing"],
-      'eden:delirium': [321, "Eden's Soul"],
-      'eden:megasatan': [214, 'Cracked Baby'],
-      'eden:mother': [458, "'M"],
-      'eden:beast': [459, 'TMTRAINER'],
+      'eden:isaac': [121, 'Blank Card'],
+      'eden:bluebaby': [123, 'Mysterious Paper'],
+      'eden:satan': [122, 'Book of Secrets'],
+      'eden:lamb': [124, 'Mystery Sack'],
+      'eden:bossrush': [125, 'Undefined'],
+      'eden:hush': [188, "Eden's Blessing"],
+      'eden:delirium': [301, "Eden's Soul"],
+      'eden:greedier': [324, 'Metronome'],
 
-      'lost:heart': [177, '-0- Baby'],
-      'lost:isaac': [131, "Isaac's Heart"],
-      'lost:bluebaby': [132, 'The Body'],
-      'lost:satan': [133, 'The Mind'],
-      'lost:lamb': [134, 'The Soul'],
-      'lost:bossrush': [106, 'D100'],
-      'lost:hush': [283, 'Sworn Protector'],
-      'lost:delirium': [322, 'Holy Card'],
-      'lost:megasatan': [215, 'Zodiac'],
-      'lost:mother': [460, 'Lost Soul'],
-      'lost:beast': [461, 'Hungry Soul'],
-      'lost:greedier': [329, 'Godhead'],
+      // The Lost
+      'lost:heart': [175, '-0- Baby'],
+      'lost:isaac': [129, "Isaac's Heart"],
+      'lost:bluebaby': [131, 'The Body'],
+      'lost:satan': [130, 'The Mind'],
+      'lost:lamb': [132, 'The Soul'],
+      'lost:bossrush': [133, 'The D100'],
+      'lost:hush': [189, 'Sworn Protector'],
+      'lost:delirium': [302, 'Holy Card'],
+      'lost:greedier': [318, "Dad's Lost Coin"],
 
-      'lilith:heart': [218, 'Goat Head Baby'],
-      'lilith:isaac': [219, 'Rune Bag'],
-      'lilith:bluebaby': [220, 'Cambion Conception'],
-      'lilith:satan': [221, "Serpent's Kiss"],
-      'lilith:lamb': [222, 'Succubus'],
-      'lilith:bossrush': [223, 'Immaculate Conception'],
-      'lilith:hush': [224, 'Incubus'],
-      'lilith:delirium': [323, 'Duality'],
-      'lilith:megasatan': [216, 'Multidimensional Baby'],
-      'lilith:mother': [462, 'Blood Puppy'],
-      'lilith:beast': [463, 'C Section'],
+      // Lilith
+      'lilith:hush': [190, 'Incubus'],
+      'lilith:delirium': [304, 'Euthanasia'],
+      'lilith:greedier': [315, 'Duality'],
 
-      'keeper:heart': [236, 'Super Greed Baby'],
-      'keeper:isaac': [237, 'Wooden Nickel'],
-      'keeper:bluebaby': [238, 'Deep Pockets'],
-      'keeper:satan': [239, 'Store Key'],
-      'keeper:lamb': [240, 'Karma'],
-      'keeper:bossrush': [241, 'Sticky Nickels'],
-      'keeper:hush': [242, 'Keeper holds Penny'],
-      'keeper:delirium': [324, 'Crooked Penny'],
-      'keeper:megasatan': [217, 'Noose Baby'],
-      'keeper:mother': [464, "Keeper's Box"],
-      'keeper:beast': [465, "Keeper's Kin"],
+      // Keeper
+      'keeper:hush': [191, 'Keeper holds Penny'],
+      'keeper:delirium': [311, 'Crooked Penny'],
+      'keeper:greedier': [314, 'Eye of Greed'],
 
-      'apollyon:heart': [325, 'Smelter'],
-      'apollyon:isaac': [326, 'Locust of Wrath'],
-      'apollyon:bluebaby': [327, 'Locust of Pestilence'],
-      'apollyon:satan': [328, 'Locust of Famine'],
-      'apollyon:lamb': [330, 'Locust of Death'],
-      'apollyon:bossrush': [331, 'Locust of Conquest'],
-      'apollyon:hush': [332, 'Hushy'],
-      'apollyon:delirium': [333, 'Void'],
-      'apollyon:megasatan': [334, 'Mort Baby'],
-      'apollyon:mother': [466, 'Worm Friend'],
-      'apollyon:beast': [467, 'Echo Chamber'],
+      // Apollyon
+      'apollyon:heart': [287, 'Smelter'],
+      'apollyon:megasatan': [288, 'Mort Baby'],
+      'apollyon:bossrush': [289, 'Locust of Conquest'],
+      'apollyon:lamb': [290, 'Locust of Death'],
+      'apollyon:bluebaby': [291, 'Locust of Famine'],
+      'apollyon:satan': [292, 'Locust of Pestilence'],
+      'apollyon:isaac': [293, 'Locust of Wrath'],
+      'apollyon:hush': [294, 'Hushy'],
+      'apollyon:delirium': [300, 'Void'],
+      'apollyon:greedier': [312, 'Black Rune'],
 
-      'forgotten:heart': [392, 'Marrow'],
-      'forgotten:isaac': [393, 'Slipped Rib'],
-      'forgotten:bluebaby': [394, 'Pointy Rib'],
-      'forgotten:satan': [395, 'Jaw Bone'],
-      'forgotten:lamb': [396, 'Brittle Bones'],
-      'forgotten:bossrush': [397, 'Divorce Papers'],
-      'forgotten:hush': [398, 'Hallowed Ground'],
-      'forgotten:delirium': [399, 'Book of the Dead'],
-      'forgotten:megasatan': [400, 'Bone Baby'],
-      'forgotten:mother': [468, "Isaac's Tomb"],
-      'forgotten:beast': [469, 'Spirit Shackles'],
+      // The Forgotten
+      'forgotten:greedier': [400, "Dad's Ring"],
 
-      'bethany:heart': [416, 'Wisp Baby'],
-      'bethany:isaac': [417, 'Book of Virtues'],
-      'bethany:bluebaby': [418, 'Blessed Penny'],
-      'bethany:satan': [419, 'Urn of Souls'],
-      'bethany:lamb': [420, 'Alabaster Box'],
-      'bethany:bossrush': [421, "Beth's Faith"],
-      'bethany:hush': [422, 'Divine Intervention'],
-      'bethany:delirium': [423, 'Star of Bethlehem'],
-      'bethany:megasatan': [424, 'Glow Baby'],
-      'bethany:mother': [425, 'Revelation'],
-      'bethany:beast': [426, 'Vengeful Spirit'],
-      'bethany:greedier': [427, 'Soul of Bethany'],
-
-      'jacob:heart': [428, 'Double Baby'],
+      // Jacob & Esau
       'jacob:isaac': [429, 'The Stairway'],
-      'jacob:bluebaby': [430, 'Birthright'],
-      'jacob:satan': [431, 'Red Stew'],
+      'jacob:satan': [430, 'Red Stew'],
+      'jacob:bluebaby': [431, 'Birthright'],
       'jacob:lamb': [432, 'Damocles'],
       'jacob:bossrush': [433, 'Rock Bottom'],
-      'jacob:hush': [434, 'Vanishing Twin'],
-      'jacob:delirium': [435, 'Suplex!'],
-      'jacob:megasatan': [436, 'Inner Child'],
-      'jacob:mother': [437, 'Magic Skin'],
-      'jacob:beast': [438, 'Genesis'],
-      'jacob:greedier': [439, "Solomon's Baby"],
+      'jacob:hush': [435, 'Vanishing Twin'],
+      'jacob:greedier': [436, 'Genesis'],
+      'jacob:delirium': [437, 'Suplex!'],
+      'jacob:mother': [472, 'Magic Skin'],
+      'jacob:beast': [473, 'Friend Finder'],
 
-      't_isaac:mother': [491, "Mom's Lock"], 't_isaac:beast': [492, 'Glitched Crown'], 't_isaac:delirium': [493, 'Spindown Dice'], 't_isaac:megasatan': [494, 'Soul of Isaac'], 't_isaac:greedier': [495, 'The Stars?'],
-      't_magdalene:mother': [498, "Mother's Kiss"], 't_magdalene:beast': [499, 'Belly Jelly'], 't_magdalene:delirium': [500, 'Hypercoagulation'], 't_magdalene:megasatan': [501, 'Soul of Magdalene'], 't_magdalene:greedier': [502, 'The Lovers?'],
-      't_cain:mother': [505, 'Gilded Key'], 't_cain:beast': [506, 'Bag of Crafting'], 't_cain:delirium': [507, 'Lucky Sack'], 't_cain:megasatan': [508, 'Soul of Cain'], 't_cain:greedier': [509, 'Wheel of Fortune?'],
-      't_judas:mother': [512, 'Number Magnet'], 't_judas:beast': [513, 'Dark Arts'], 't_judas:delirium': [514, 'Sanguine Bond'], 't_judas:megasatan': [515, 'Soul of Judas'], 't_judas:greedier': [516, 'The Magician?'],
-      't_bluebaby:mother': [519, 'Dingle Berry'], 't_bluebaby:beast': [520, 'IBS'], 't_bluebaby:delirium': [521, 'Swallowed M80'], 't_bluebaby:megasatan': [522, 'Soul of ???'], 't_bluebaby:greedier': [523, 'The Emperor?'],
-      't_eve:mother': [526, 'Strange Key'], 't_eve:beast': [527, 'Sumptorium'], 't_eve:delirium': [528, 'Lil Clot'], 't_eve:megasatan': [529, 'Soul of Eve'], 't_eve:greedier': [530, 'The Empress?'],
-      't_samson:mother': [533, 'Temporary Tattoo'], 't_samson:beast': [534, 'Berserk!'], 't_samson:delirium': [535, 'Crane Game'], 't_samson:megasatan': [536, 'Soul of Samson'], 't_samson:greedier': [537, 'Strength?'],
-      't_azazel:mother': [540, 'Wicked Crown'], 't_azazel:beast': [541, 'Hemoptysis'], 't_azazel:delirium': [542, 'Hell Game'], 't_azazel:megasatan': [543, 'Soul of Azazel'], 't_azazel:greedier': [544, 'The Devil?'],
-      't_lazarus:mother': [547, 'Torn Pocket'], 't_lazarus:beast': [548, 'Flip'], 't_lazarus:delirium': [549, 'Wooden Chest'], 't_lazarus:megasatan': [550, 'Soul of Lazarus'], 't_lazarus:greedier': [551, 'Judgement?'],
-      't_eden:mother': [554, 'Nuh Uh!'], 't_eden:beast': [555, 'Corrupted Data'], 't_eden:delirium': [556, 'Modeling Clay'], 't_eden:megasatan': [557, 'Soul of Eden'], 't_eden:greedier': [558, 'The World?'],
-      't_lost:mother': [561, 'Crystal Key'], 't_lost:beast': [562, 'Sacred Orb'], 't_lost:delirium': [563, 'Ghost Bombs'], 't_lost:megasatan': [564, 'Soul of the Lost'], 't_lost:greedier': [565, 'The Fool?'],
-      't_lilith:mother': [568, 'Gello'], 't_lilith:beast': [569, 'Twisted Pair'], 't_lilith:delirium': [570, "Fool's Gold"], 't_lilith:megasatan': [571, 'Soul of Lilith'], 't_lilith:greedier': [572, 'The High Priestess?'],
-      't_keeper:mother': [575, 'Golden Penny'], 't_keeper:beast': [576, "Keeper's Kin"], 't_keeper:delirium': [577, "Keeper's Sack"], 't_keeper:megasatan': [578, 'Soul of the Keeper'], 't_keeper:greedier': [579, 'The Hermit?'],
-      't_apollyon:mother': [582, 'Cricket Leg'], 't_apollyon:beast': [583, 'Abyss'], 't_apollyon:delirium': [584, 'Rotten Beggar'], 't_apollyon:megasatan': [585, 'Soul of Apollyon'], 't_apollyon:greedier': [586, 'The Tower?'],
-      't_forgotten:mother': [589, 'Hollow Heart'], 't_forgotten:beast': [590, "Isaac's Tomb"], 't_forgotten:delirium': [591, 'Polished Bone'], 't_forgotten:megasatan': [592, 'Soul of the Forgotten'], 't_forgotten:greedier': [593, 'Death?'],
-      't_bethany:mother': [596, 'Expansion Pack'], 't_bethany:beast': [597, 'Lemegeton'], 't_bethany:delirium': [598, 'Confessional'], 't_bethany:megasatan': [599, 'Soul of Bethany'], 't_bethany:greedier': [600, 'The Hierophant?'],
-      't_jacob:mother': [603, 'RC Remote'], 't_jacob:beast': [604, 'Esau Jr.'], 't_jacob:delirium': [605, 'Anima Sola'], 't_jacob:megasatan': [606, 'Soul of Jacob & Esau'], 't_jacob:greedier': [607, 'Sun? & Moon?']
+      // Tainted Characters (verified Beat The Beast unlocks)
+      't_isaac:beast': [491, 'Glitched Crown'],
+      't_magdalene:beast': [492, 'Belly Jelly']
     };
 
     const MUST_HAVE_SECRET_IDS = new Set([
-      4, 8, 32, 37, 43, 57, 78, 84, 89, 90, 91, 93, 94, 98, 105, 106, 149, 178, 234, 329, 341, 404, 405, 406, 407, 417, 425, 429, 430, 433, 437, 462, 463, 492, 493, 506, 548, 562, 569, 575, 597, 635, 636, 637
+      4, 8, 29, 32, 34, 43, 57, 62, 78, 79, 82, 90, 94, 96, 97, 98, 103, 138, 149, 155, 156, 186, 190, 199, 299, 300, 302, 309, 312, 313, 404, 429, 431, 432, 433, 436, 491, 636, 637, 641
     ]);
 
     const OFFICIAL_FIXED_SECRETS = {
-      1: ['chars', 'magdalene', 'Magdalene', 'Персонаж Magdalene', 'Have 7+ Red Heart Containers in one run.'],
+      1: ['chars', 'magdalene', 'Magdalene', 'Персонаж Magdalene', 'Have 7 or more Red Heart Containers at once.'],
       2: ['chars', 'cain', 'Cain', 'Персонаж Cain', 'Hold 55 or more coins at once.'],
       3: ['chars', 'judas', 'Judas', 'Персонаж Judas', 'Defeat Satan in Sheol for the first time.'],
       4: ['musthave', 'heart', 'The Womb', 'Открытие глав Womb / Utero', 'Defeat Mom on Floor 6 for the first time.'],
       5: ['repplus', 'trophy', 'The Harbingers', 'Боссы-Всадники (Куб Мяса)', 'Defeat Mom for the first time.'],
-      6: ['repplus', 'trophy', 'A Cube of Meat', 'Артефакт Cube of Meat', 'Defeat Mom for the first time.'],
+      6: ['repplus', 'trophy', 'A Cube of Meat', 'Артефакт Cube of Meat & Ball of Bandages', 'Defeat Mom for the first time.'],
       7: ['repplus', 'trophy', 'The Book of Revelations', 'Книга Book of Revelations', 'Defeat a Harbinger boss.'],
-      8: ['musthave', 'trophy', 'A Noose (Transcendence)', 'Артефакт Transcendence (Полет)', 'Defeat Mom\'s Heart 3 times.'],
-      10: ['repplus', 'trophy', 'A Quarter', 'Артефакт A Quarter (+25¢)', 'Defeat Mom\'s Heart 8 times.'],
-      11: ['repplus', 'trophy', 'A Fetus in a Jar', 'Артефакт Dr. Fetus', 'Defeat Mom\'s Heart 9 times.'],
+      8: ['musthave', 'trophy', 'A Noose (Transcendence)', 'Артефакт Transcendence (Полет)', "Defeat Mom's Heart 3 times."],
+      10: ['repplus', 'trophy', 'A Quarter', 'Артефакт A Quarter (+25¢)', "Defeat Mom's Heart 8 times."],
+      11: ['repplus', 'trophy', 'A Fetus in a Jar', 'Артефакт Dr. Fetus', "Defeat Mom's Heart 9 times."],
       12: ['repplus', 'trophy', 'A Small Rock', 'Артефакт The Small Rock (+1 Урон)', 'Destroy 100 Tinted Rocks.'],
-      32: ['musthave', 'bluebaby', '??? (Blue Baby)', 'Персонаж ??? (Blue Baby)', 'Defeat Mom\'s Heart 10 times.'],
-      34: ['musthave', 'heart', 'Everything Is Terrible!!!', 'Усложнение игры (5 побед над Сердцем)', 'Defeat Mom\'s Heart 5 times.'],
-      37: ['musthave', 'eve', 'Eve', 'Персонаж Eve', 'Clear 2 floors in a row without picking up any hearts.'],
-      42: ['musthave', 'samson', 'Samson', 'Персонаж Samson', 'Clear 2 floors in a row without taking damage.'],
+      13: ['repplus', 'trophy', "Monstro's Tooth", "Артефакт Monstro's Tooth", 'Beat Chapter 1 for the first time.'],
+      14: ['repplus', 'trophy', "Lil' Chubby", "Артефакт Little Chubby", 'Beat Chapter 2 for the first time.'],
+      15: ['repplus', 'trophy', "Loki's Horns", "Артефакт Loki's Horns", 'Defeat Lokii.'],
+      16: ['repplus', 'trophy', 'Something From The Future', 'Босс Steven в Basement', 'Beat Basement 40 times.'],
+      17: ['repplus', 'trophy', 'Something Cute', 'Босс C.H.A.D. в Caves', 'Beat Chapter 2 30 times.'],
+      18: ['repplus', 'trophy', 'Something Sticky', 'Босс Gish в Depths', 'Beat Chapter 3 20 times.'],
+      19: ['repplus', 'trophy', 'A Bandage', 'Артефакт Super Bandage', 'Make a Super Bandage Girl (4 Ball of Bandages in one run).'],
+      22: ['repplus', 'trophy', 'The Book of Sin', 'Книга The Book of Sin', 'Defeat all 7 Deadly Sins at least once.'],
+      23: ['repplus', 'trophy', 'Little Gish', 'Фамильяр Little Gish', 'Defeat Gish.'],
+      24: ['repplus', 'trophy', 'Little Steven', 'Фамильяр Little Steven', 'Defeat Steven.'],
+      25: ['repplus', 'trophy', 'Little C.H.A.D.', 'Фамильяр Little C.H.A.D.', 'Defeat C.H.A.D.'],
+      26: ['repplus', 'trophy', 'A Gamekid', 'Артефакт The Gamekid', 'Visit 10 Arcades.'],
+      27: ['repplus', 'trophy', 'A Halo', 'Артефакт The Halo', "Defeat Mom, Mom's Heart, or It Lives! using The Bible."],
+      28: ['repplus', 'trophy', 'Mr. Mega', 'Артефакт Mr. Mega', 'Destroy 10 Tinted Rocks.'],
+      30: ['repplus', 'trophy', 'The Scissors', 'Артефакт Scissors', 'Die 100 times.'],
+      31: ['repplus', 'trophy', 'The Parasite', 'Артефакт The Parasite', 'Pick up 2 "dead" items in one run.'],
+      32: ['musthave', 'bluebaby', '??? (Blue Baby)', 'Персонаж ??? (Blue Baby)', "Defeat Mom's Heart 10 times."],
+      33: ['repplus', 'heart', 'Everything Is Terrible!!!', 'Усложнение игры (5 побед над Сердцем)', "Defeat Mom's Heart 5 times."],
+      34: ['musthave', 'heart', 'It Lives!', 'Босс It Lives + пути Вверх/Вниз', "Defeat Mom's Heart 11 times."],
+      35: ['repplus', 'trophy', "Mom's Contact", "Артефакт Mom's Contacts", 'Obtain 3 Mom items in one run.'],
+      36: ['repplus', 'trophy', 'The Necronomicon', 'Книга The Necronomicon', 'Use XIII - Death 4 times.'],
+      37: ['repplus', 'trophy', 'Basement Boy', 'Без урона в Chapter 1', 'Beat Chapter 1 without taking damage.'],
+      38: ['repplus', 'trophy', 'Spelunker Boy', 'Без урона в Chapter 2', 'Beat Chapter 2 without taking damage.'],
+      39: ['repplus', 'trophy', 'Dark Boy', 'Без урона в Chapter 3', 'Beat Chapter 3 without taking damage.'],
+      40: ['repplus', 'trophy', "Mama's Boy", 'Без урона в Chapter 4', 'Beat Chapter 4 without taking damage.'],
+      41: ['repplus', 'trophy', 'Golden God!', 'Завершение ??? и The Lamb', 'Defeat both ??? and The Lamb.'],
+      42: ['chars', 'eve', 'Eve', 'Персонаж Eve', 'Clear 2 floors in a row without picking up any hearts.'],
       57: ['musthave', 'bluebaby_mark', 'The Polaroid', 'Доступ в The Chest', 'Defeat Isaac in Cathedral 5 times.'],
+      58: ['repplus', 'trophy', "Dad's Key", "Активка Dad's Key", 'Pick up both Key Pieces from Angels in one run.'],
+      59: ['repplus', 'room_shop', 'Blue Candle', 'Активка Blue Candle', 'Donate 900 coins to the Shop Donation Machine.'],
+      60: ['challenges', 'room_challenge', 'Burnt Penny', 'Брелок Burnt Penny', 'Complete Challenge #13: Beans!'],
+      61: ['repplus', 'trophy', 'Lucky Toe', 'Брелок Lucky Toe', 'Blow up 20 Shopkeepers.'],
+      62: ['musthave', 'trophy', 'Epic Fetus', 'Ракетные удары Epic Fetus', 'Complete Challenge #19: The Family Man.'],
+      63: ['challenges', 'room_challenge', 'SMB Super Fan', 'Артефакт SMB Super Fan', "Complete Challenge #14: It's in the Cards."],
+      64: ['repplus', 'trophy', 'Counterfeit Penny', 'Брелок Counterfeit Penny', 'Play Shell Game or Hell Game 100 times.'],
+      65: ['repplus', 'tr_guppy', "Guppy's Hairball", "Артефакт Guppy's Hairball", 'Transform into Guppy.'],
+      66: ['repplus', 'trophy', 'A Forgotten Horseman', 'Босс Conquest', 'Take 10 Angel Room items.'],
+      67: ['chars', 'samson', 'Samson', 'Персонаж Samson', 'Complete 2 floors in a row without taking damage.'],
+      68: ['repplus', 'trophy', 'Something Icky', 'Босс Triachnid в Womb', 'Defeat Isaac 10 times.'],
+      69: ['repplus', 'trophy', '!Platinum God!', '100% базового Rebirth (без Lost)', 'Unlock all base Rebirth secrets & items (except Lost).'],
       78: ['musthave', 'satan_mark', 'The Negative', 'Доступ в Dark Room', 'Defeat Satan in Sheol 5 times.'],
       79: ['musthave', 'azazel', 'Azazel', 'Персонаж Azazel', 'Make 3 Devil Deals in one run.'],
-      80: ['musthave', 'lazarus', 'Lazarus', 'Персонаж Lazarus', 'Have 4 or more Soul/Black Hearts at once.'],
-      81: ['musthave', 'eden', 'Eden', 'Персонаж Eden', 'Defeat Mom\'s Heart on Floor 8.'],
+      80: ['chars', 'lazarus', 'Lazarus', 'Персонаж Lazarus', 'Have 4 or more Soul/Black Hearts at once.'],
+      81: ['chars', 'eden', 'Eden', 'Персонаж Eden', 'Complete Chapter 4 (Womb).'],
       82: ['musthave', 'lost', 'The Lost', 'Персонаж The Lost', 'Die in a Sacrifice Room while holding Missing Poster.'],
-      84: ['musthave', 'heart', 'It Lives!', 'Босс It Lives + пути Вверх/Вниз', 'Defeat Mom\'s Heart 11 times.'],
-      89: ['musthave', 'item_jera', 'Rune Jera', 'Руна Jera (удвоение пикапов и сундуков)', 'Complete Challenge #02 High Brow.'],
-      93: ['musthave', 'item_perthro', 'Rune Perthro', 'Руна Perthro (реролл пьедесталов)', 'Complete Challenge #06 Solar System.'],
-      98: ['musthave', 'item_scythe', "Death's Touch", 'Косы Death\'s Touch', 'Complete Challenge #17 Waka Waka.'],
-      105: ['musthave', 'trophy', 'Epic Fetus', 'Ракетные удары Epic Fetus', 'Complete Challenge #19 Family Man.'],
-      178: ['musthave', 'room_shop', 'Stop Watch', 'Артефакт Stop Watch (999 монет в магазине)', 'Donate 999 coins to the Shop Donation Machine.'],
+      83: ['repplus', 'trophy', 'Dead Boy', 'Без урона в Chapter 6', 'Beat The Chest or Dark Room without taking damage.'],
+      84: ['repplus', 'trophy', 'The Real Platinum God', '111% базового Rebirth', 'Unlock all base Rebirth secrets, endings & items.'],
+      85: ['repplus', 'trophy', 'Lucky Rock', 'Брелок Lucky Rock', 'Destroy 100 rocks.'],
+      86: ['repplus', 'floor_base', 'The Cellar', 'Альт-глава Cellar', 'Beat all Basement bosses.'],
+      87: ['repplus', 'floor_base', 'The Catacombs', 'Альт-глава Catacombs', 'Beat all Caves bosses.'],
+      88: ['repplus', 'floor_depths', 'The Necropolis', 'Альт-глава Necropolis', 'Beat all Depths bosses.'],
+      89: ['challenges', 'room_challenge', 'Rune of Hagalaz', 'Руна Hagalaz (ломает все камни)', 'Complete Challenge #01: Pitch Black.'],
+      90: ['musthave', 'item_jera', 'Rune of Jera', 'Руна Jera (удвоение пикапов и сундуков)', 'Complete Challenge #02: High Brow.'],
+      91: ['challenges', 'room_challenge', 'Rune of Ehwaz', 'Руна Ehwaz (создает люк / Crawlspace)', 'Complete Challenge #03: Head Trauma.'],
+      92: ['challenges', 'room_challenge', 'Rune of Dagaz', 'Руна Dagaz (снимает проклятие + 1 синее сердце)', 'Complete Challenge #04: Darkness Falls.'],
+      93: ['challenges', 'room_challenge', 'Rune of Ansuz', 'Руна Ansuz (открывает всю карту и секретки)', 'Complete Challenge #05: The Tank.'],
+      94: ['musthave', 'item_perthro', 'Rune of Perthro', 'Руна Perthro (реролл пьедесталов как D6)', 'Complete Challenge #06: Solar System.'],
+      95: ['challenges', 'room_challenge', 'Rune of Berkano', 'Руна Berkano (3 синие мухи + 3 паука)', 'Complete Challenge #20: Purist.'],
+      96: ['musthave', 'room_challenge', 'Rune of Algiz', 'Руна Algiz (20 сек неуязвимости)', 'Complete Challenge #08: Cat Got Your Tongue.'],
+      97: ['musthave', 'codex_card', 'Chaos Card', 'Карта Chaos Card (ваншот боссов)', 'Complete Challenge #09: Demo Man.'],
+      98: ['musthave', 'codex_card', 'Credit Card', 'Карта Credit Card (бесплатный магазин/сделка)', 'Complete Challenge #10: Cursed!'],
+      99: ['challenges', 'codex_card', 'Rules Card', 'Карта Rules Card', 'Complete Challenge #11: Glass Cannon.'],
+      100: ['challenges', 'codex_card', 'Card Against Humanity', 'Карта A Card Against Humanity', 'Complete Challenge #12: When Life Gives You Lemons.'],
+      101: ['challenges', 'codex_trinket', 'Swallowed Penny', 'Брелок Swallowed Penny', 'Complete Challenge #15: Slow Roll.'],
+      102: ['challenges', 'room_challenge', 'Robo-Baby 2.0', 'Фамильяр Robo-Baby 2.0', 'Complete Challenge #16: Computer Savvy.'],
+      103: ['musthave', 'item_scythe', "Death's Touch", "Косы Death's Touch", 'Complete Challenge #17: Waka Waka.'],
+      104: ['challenges', 'room_challenge', 'Technology .5', 'Артефакт Tech.5', 'Complete Challenge #18: The Host.'],
+      120: ['challenges', 'codex_card', 'Suicide King', 'Карта Suicide King', 'Complete Challenge #07: Suicide King.'],
+      134: ['repplus', 'room_shop', 'Blue Map', 'Артефакт Blue Map', 'Donate 10 coins to the Donation Machine.'],
+      135: ['repplus', 'room_shop', "There's Options", "Артефакт There's Options", 'Donate 50 coins to the Donation Machine.'],
+      136: ['repplus', 'room_shop', 'Black Candle', 'Артефакт Black Candle', 'Donate 150 coins to the Donation Machine.'],
+      137: ['repplus', 'room_shop', 'Red Candle', 'Активка Red Candle', 'Donate 400 coins to the Donation Machine.'],
+      138: ['musthave', 'room_shop', 'Stop Watch', 'Артефакт Stop Watch (999 монет в магазине)', 'Donate 999 coins to the Shop Donation Machine.'],
+      139: ['repplus', 'trophy', 'Wire Coat Hanger', 'Артефакт Wire Coat Hanger', "Defeat Mom's Heart 4 times."],
+      140: ['repplus', 'trophy', 'Ipecac', 'Артефакт Ipecac', "Defeat Mom's Heart 6 times."],
+      141: ['repplus', 'trophy', 'Experimental Treatment', 'Артефакт Experimental Treatment', "Defeat Mom's Heart 7 times."],
+      142: ['repplus', 'room_devil', 'Krampus', 'Мини-босс Krampus в Комнате Дьявола', 'Take 20 Devil Room items.'],
+      143: ['repplus', 'room_devil', 'Head of Krampus', 'Активка Head of Krampus', 'Defeat Krampus.'],
+      144: ['repplus', 'trophy', 'Super Meat Boy', '4 Cube of Meat за один забег', 'Make a Super Meat Boy in one run.'],
+      145: ['repplus', 'trophy', 'Butter Bean', 'Активка Butter Bean', 'Destroy 100 Poops.'],
+      146: ['repplus', 'trophy', 'Little Baggy', 'Артефакт Little Baggy', 'Pick up 2 syringe items in one run.'],
+      147: ['repplus', 'trophy', 'Blood Bag', 'Артефакт Blood Bag', 'Use the Blood Donation Machine 30 times.'],
+      148: ['repplus', 'trophy', 'The D4', 'Активка The D4', 'Blow up 30 Slot Machines.'],
+      150: ['repplus', 'trophy', 'Rubber Cement', 'Артефакт Rubber Cement', "Defeat Mom's Heart 2 times."],
+      151: ['repplus', 'room_shop', 'Store Upgrade lv.1', 'Улучшение магазина ур.1', 'Donate 20 coins to the Donation Machine.'],
+      152: ['repplus', 'room_shop', 'Store Upgrade lv.2', 'Улучшение магазина ур.2', 'Donate 100 coins to the Donation Machine.'],
+      153: ['repplus', 'room_shop', 'Store Upgrade lv.3', 'Улучшение магазина ур.3', 'Donate 200 coins to the Donation Machine.'],
+      154: ['repplus', 'room_shop', 'Store Upgrade lv.4', 'Улучшение магазина ур.4', 'Donate 600 coins to the Donation Machine.'],
+      155: ['musthave', 'room_angel', 'Angels', 'Статуи Ангелов и куски ключа (Mega Satan)', 'Complete Chapter 6 (The Chest or Dark Room).'],
+      156: ['musthave', 'lost', 'Godhead', 'Артефакт Godhead (все Hard-метки за The Lost)', 'Earn all Hard Mode Completion Marks as The Lost.'],
+      178: ['repplus', 'tr_fly', 'Lord of the Flies', 'Трансформация Beelzebub (3 предмета мух)', 'Transform into Beelzebub (Lord of the Flies).'],
       199: ['musthave', 'lilith', 'Lilith', 'Персонаж Lilith', 'Beat Greed Mode as Azazel.'],
-      234: ['musthave', 'keeper', 'Keeper', 'Персонаж Keeper', 'Donate 1000 coins to the Greed Donation Machine.'],
-      251: ['musthave', 'greedier_mark', 'Greedier Mode', 'Режим Greedier (500 монет в Greed)', 'Donate 500 coins to the Greed Donation Machine.'],
-      340: ['musthave', 'apollyon', 'Apollyon', 'Персонаж Apollyon', 'Defeat Mega Satan for the first time.'],
-      390: ['musthave', 'forgotten', 'The Forgotten', 'Персонаж The Forgotten', 'Unlock via Broken Shovel & Dark Room grave.'],
-      404: ['musthave', 'bethany', 'Bethany', 'Персонаж Bethany', 'Beat Mom\'s Heart/It Lives as Lazarus on Hard without losing a life.'],
-      405: ['musthave', 'jacob', 'Jacob & Esau', 'Персонаж Jacob & Esau', 'Defeat Mother in Corpse II for the first time.'],
-      406: ['musthave', 'room_planetarium', 'The Planetarium', 'Комнаты Планетариев на этажах 1–6', 'Collect 3 astrology items in a single run.'],
-      407: ['musthave', 'boss_hush', 'A Secret Exit (Alt Path)', 'Альт-этажи Downpour, Mines, Mausoleum', 'Defeat Hush 3 times.'],
-      634: ['musthave', 'boss_beast', 'A Strange Door (Home)', 'Странная дверь на Depths II → The Beast', 'Defeat Mother in Corpse II once.'],
-      635: ['musthave', 'trophy', 'Mega Mush', 'Активка Mega Mush (все 17 обычных героев)', 'Complete all 12 Hard Mode marks on all 17 base characters.'],
-      636: ['musthave', 'trophy', 'Death Certificate', 'Доступ ко всем 719 предметам (все 34 героя)', 'Complete all 12 Hard Mode marks on all 34 characters.'],
-      637: ['musthave', 'trophy', 'Dead God', 'Полное закрытие Repentance (100%)', 'Unlock all prior secrets, touch all items & complete Bestiary.'],
-      638: ['repplus', 'trophy', 'Online Daily Runner (Rep+)', 'Онлайн-достижение Repentance+ #1', 'Complete an Online Daily Run in Repentance+.'],
-      639: ['repplus', 'trophy', 'Online Co-op Victory (Rep+)', 'Онлайн-достижение Repentance+ #2', 'Defeat a final boss in Online Co-op in Repentance+.'],
-      640: ['repplus', 'trophy', 'Online Timed Run (Rep+)', 'Онлайн-достижение Repentance+ #3', 'Complete Boss Rush / Hush in Online mode in Repentance+.'],
-      641: ['repplus', 'trophy', 'True Dead God+ (641/641)', '100% прогресс Repentance+', 'Unlock all 641 secrets in Repentance+.']
+      277: ['challenges', 'room_challenge', 'Aprils Fool (Challenge #32)', 'Открытие испытания #32', 'Unlock Challenge #32.'],
+      278: ['challenges', 'room_challenge', 'Backasswards (Challenge #31)', 'Открытие испытания #31', 'Defeat ??? or The Lamb.'],
+      279: ['challenges', 'room_challenge', 'Pokey Mans (Challenge #33)', 'Открытие испытания #33', 'Unlock It Lives!'],
+      280: ['challenges', 'room_challenge', 'Pong (Challenge #35)', 'Открытие испытания #35', 'Unlock The Polaroid.'],
+      281: ['challenges', 'room_challenge', 'Ultra Hard (Challenge #34)', 'Открытие испытания #34', 'Defeat ??? or The Lamb.'],
+      282: ['challenges', 'room_challenge', 'Laz Bleeds More!', 'Lazarus начинает с Anemic', 'Complete Challenge #31: Backasswards.'],
+      283: ['challenges', 'room_challenge', 'Maggy Now Holds a Pill!', 'Magdalene начинает с Full Health', 'Complete Challenge #32: Aprils Fool.'],
+      284: ['challenges', 'room_challenge', 'Charged Key', 'Пикап Charged Key', 'Complete Challenge #33: Pokey Mans.'],
+      285: ['challenges', 'room_challenge', 'Samson Feels Healthy!', "Samson начинает с Child's Heart", 'Complete Challenge #34: Ultra Hard.'],
+      286: ['challenges', 'room_challenge', "Greed's Gullet", "Артефакт Greed's Gullet", 'Complete Challenge #35: Pong.'],
+      295: ['marks', 'apollyon', 'Brown Nugget', 'Активка Brown Nugget (Apollyon Greed)', 'Defeat Ultra Greed as Apollyon.'],
+      296: ['marks', 'apollyon', 'Apollyon Baby', 'Все Hard-метки за Apollyon', 'Earn all Hard Mode Completion Marks as Apollyon.'],
+      297: ['repplus', 'boss_delirium', 'Delirious', 'Активка Delirious', 'Defeat Delirium for the first time.'],
+      326: ['repplus', 'trophy', 'Dedication', 'Артефакт Horf! pill', 'Participate in 31 Daily Challenges.'],
+      327: ['repplus', 'trophy', 'Hat Trick!', 'Брелок Ace of Spades / стрик 3 победы', 'Achieve a 3-win streak.'],
+      328: ['repplus', 'trophy', "It's the Key", 'Брелок Ace of Spades (без монет/сердец/бомб)', 'Defeat The Lamb without picking up hearts, coins, or bombs.'],
+      329: ['repplus', 'trophy', 'Living on the Edge', 'Артефакт Ace of Hearts', 'Beat Basement without taking damage or as The Lost.'],
+      330: ['repplus', 'trophy', 'ZIP!', 'Карта Ace of Diamonds (<20 мин The Lamb)', 'Defeat The Lamb in under 20 minutes.'],
+      331: ['repplus', 'trophy', 'Mr. Resetter!', 'Артефакт Half Soul Heart', 'Reset 7 times in a row.'],
+      332: ['repplus', 'boss_delirium', 'New Area (The Void)', 'Открытие этажа The Void', 'Defeat Hush for the first time.'],
+      333: ['repplus', 'trophy', 'Once More with Feeling!', 'Пилюля Gulp!', 'Complete a Victory Lap and defeat The Lamb.'],
+      334: ['repplus', 'trophy', 'RERUN', 'Кнопка RERUN в меню', 'Complete 3 Victory Laps in a single run.'],
+      335: ['repplus', 'trophy', 'Sin Collector', 'Заполнение Бестиария', 'Complete the Bestiary.'],
+      336: ['repplus', 'trophy', 'The Marathon', 'Брелок Cracked Crown (5 Daily подряд)', 'Get a 5-win streak in Daily Challenges.'],
+      337: ['repplus', 'trophy', 'U Broke It!', 'Пилюля Vurp!', 'Obtain 50 items in a single run.'],
+      338: ['repplus', 'trophy', "5 Nights at Mom's", 'Супер-особые камни (5 разных героев подряд)', 'Get a win streak with different characters.'],
+      339: ['repplus', 'trophy', '1000000%', '100% Afterbirth+', 'Unlock all Afterbirth+ secrets and items.'],
+      404: ['musthave', 'bethany', 'Bethany', 'Персонаж Bethany', "Beat Mom's Heart / It Lives as Lazarus on Hard without losing a life."],
+      434: ['marks', 'jacob', 'Inner Child', 'Артефакт Inner Child (Jacob & Esau Greed)', 'Defeat Ultra Greed as Jacob & Esau.'],
+      557: ['repplus', 'codex_trinket', 'Ring Cap', 'Брелок Ring Cap', 'Repentance unlock #557.'],
+      636: ['musthave', 'trophy', 'Death Certificate', 'Доступ ко всем 719 предметам (все 34 героя)', 'Earn all Hard Mode Completion Marks for all 34 characters.'],
+      637: ['musthave', 'trophy', 'Dead God', 'Полное закрытие Repentance (100%)', 'Unlock all Repentance secrets, touch every item & complete Bestiary.'],
+      638: ['repplus', 'trophy', 'You Played Online! (Rep+)', 'Онлайн-достижение Repentance+ #1', 'Play an Online Co-op match in Repentance+.'],
+      639: ['repplus', 'trophy', 'You Won Online! (Rep+)', 'Онлайн-достижение Repentance+ #2', 'Win an Online Co-op run in Repentance+.'],
+      640: ['repplus', 'trophy', 'Online Daily Victory (Rep+)', 'Онлайн-достижение Repentance+ #3', 'Win an Online Daily Run in Repentance+.'],
+      641: ['musthave', 'trophy', 'Internal Item Descriptions (Rep+)', 'Встроенные описания предметов Repentance+', 'Defeat Mom once in Repentance+.']
     };
 
     const SECRET_NUM_TO_SYNC = {};
@@ -4142,12 +4287,78 @@
     // =========================================================================
     // 8. УПРАВЛЕНИЕ СОСТОЯНИЕМ, СКРОЛЛОМ, СИНХРОНИЗАЦИЕЙ И ИМПОРТОМ STEAM
     // =========================================================================
+    // 3-уровневая модель меток: 0 = нет, 1 = Normal / Greed, 2 = Hard / Greedier
+    function normalizeCharMarksMap(rawMap) {
+      const result = {};
+      if (!rawMap || typeof rawMap !== 'object') return result;
+      Object.keys(rawMap).forEach(charId => {
+        const val = rawMap[charId];
+        if (Array.isArray(val)) {
+          const obj = {};
+          val.forEach(markId => {
+            if (typeof markId === 'string') obj[markId] = 2;
+          });
+          if (Object.keys(obj).length > 0) result[charId] = obj;
+        } else if (val && typeof val === 'object') {
+          const obj = {};
+          Object.keys(val).forEach(markId => {
+            const lvl = Number(val[markId]);
+            if (lvl === 1 || lvl === 2) obj[markId] = lvl;
+            else if (lvl > 2) obj[markId] = 2;
+          });
+          if (Object.keys(obj).length > 0) result[charId] = obj;
+        }
+      });
+      return result;
+    }
+
+    function getMarkLevel(charId, markId) {
+      const entry = appState.charMarks && appState.charMarks[charId];
+      if (!entry) return 0;
+      if (Array.isArray(entry)) return entry.includes(markId) ? 2 : 0;
+      return Number(entry[markId] || 0);
+    }
+
+    function setMarkLevel(charId, markId, level) {
+      if (!appState.charMarks || typeof appState.charMarks !== 'object') appState.charMarks = {};
+      if (!appState.charMarks[charId] || Array.isArray(appState.charMarks[charId])) {
+        const migrated = {};
+        if (Array.isArray(appState.charMarks[charId])) {
+          appState.charMarks[charId].forEach(k => { migrated[k] = 2; });
+        }
+        appState.charMarks[charId] = migrated;
+      }
+      if (level <= 0) {
+        delete appState.charMarks[charId][markId];
+      } else {
+        appState.charMarks[charId][markId] = level >= 2 ? 2 : 1;
+      }
+    }
+
+    function countCharMarks(charId) {
+      let hard = 0;
+      let normal = 0;
+      COMPLETION_MARKS.forEach(m => {
+        const lvl = getMarkLevel(charId, m.id);
+        if (lvl >= 2) hard++;
+        else if (lvl === 1) normal++;
+      });
+      return { total: hard + normal, hard, normal };
+    }
+
+    function doesMarkUnlockSecret(markId, level) {
+      if (level <= 0) return false;
+      if (HARD_ONLY_MARK_KEYS.has(markId)) return level >= 2;
+      return level >= 1;
+    }
+
     function syncAllMarksToSecrets(skipReverseFromSecrets = false) {
+      appState.charMarks = normalizeCharMarksMap(appState.charMarks);
       ALL_CHARACTERS.forEach(c => {
-        const marks = appState.charMarks[c.id] || [];
         COMPLETION_MARKS.forEach(m => {
           const sNum = SYNC_KEY_TO_SECRET_NUM[`${c.id}:${m.id}`];
-          if (sNum && marks.includes(m.id)) {
+          const lvl = getMarkLevel(c.id, m.id);
+          if (sNum && doesMarkUnlockSecret(m.id, lvl)) {
             appState.unlockedSecrets[sNum] = true;
           }
         });
@@ -4155,9 +4366,10 @@
       if (!skipReverseFromSecrets) {
         ALL_641_SECRETS.forEach(s => {
           if (s.syncChar && s.syncMark && appState.unlockedSecrets[s.num]) {
-            if (!appState.charMarks[s.syncChar]) appState.charMarks[s.syncChar] = [];
-            if (!appState.charMarks[s.syncChar].includes(s.syncMark)) {
-              appState.charMarks[s.syncChar].push(s.syncMark);
+            const cur = getMarkLevel(s.syncChar, s.syncMark);
+            const needed = HARD_ONLY_MARK_KEYS.has(s.syncMark) ? 2 : 1;
+            if (cur < needed) {
+              setMarkLevel(s.syncChar, s.syncMark, needed);
             }
           }
         });
@@ -4213,7 +4425,7 @@
           if (data.s[k] && n >= 1 && n <= 641) nextSecrets[n] = true;
         });
       }
-      appState.charMarks = nextMarks;
+      appState.charMarks = normalizeCharMarksMap(nextMarks);
       appState.unlockedSecrets = nextSecrets;
       if (typeof data.p === 'number') {
         appState.planetariumSkipped = Math.min(5, Math.max(0, data.p));
@@ -4255,6 +4467,11 @@
         appState.langPref = 'system';
       }
       appState.lang = resolveLanguage(appState.langPref);
+      if (appState.fontScale !== 'sm' && appState.fontScale !== 'md' && appState.fontScale !== 'lg' && appState.fontScale !== 'xl') {
+        appState.fontScale = 'md';
+      }
+      document.documentElement.setAttribute('data-font-scale', appState.fontScale);
+      appState.charMarks = normalizeCharMarksMap(appState.charMarks);
       if (!appState.codexRenderLimit || appState.codexRenderLimit < 60) appState.codexRenderLimit = 60;
       if (!appState.secretsRenderLimit || appState.secretsRenderLimit < 60) appState.secretsRenderLimit = 60;
 
@@ -4283,9 +4500,6 @@
     }
 
     function getScrollContainerForTab(tabId) {
-      if (tabId === 'hero' && window.innerWidth >= 1024) {
-        return document.getElementById('hero-right-col') || document.getElementById('tab-hero');
-      }
       return document.getElementById(`tab-${tabId}`);
     }
 
@@ -4348,6 +4562,7 @@
         lastScrollMap.set(el, el.scrollTop || 0);
         el.addEventListener('scroll', () => {
           closeLangDropdown();
+          closeFontDropdown();
           const curY = el.scrollTop || 0;
           const prevY = lastScrollMap.get(el) || 0;
           const isScrollingUp = curY < prevY - 4;
@@ -4410,10 +4625,90 @@
       return false;
     }
 
+    function toggleFontDropdown(e) {
+      if (e) e.stopPropagation();
+      closeLangDropdown();
+      const menu = document.getElementById('font-dropdown-menu');
+      const btn = document.getElementById('font-dropdown-btn');
+      const chev = document.getElementById('font-dropdown-chevron');
+      if (!menu) return;
+      const isHidden = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', !isHidden);
+      if (btn) btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+      if (chev) chev.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+
+    function closeFontDropdown() {
+      const menu = document.getElementById('font-dropdown-menu');
+      const btn = document.getElementById('font-dropdown-btn');
+      const chev = document.getElementById('font-dropdown-chevron');
+      if (!menu || menu.classList.contains('hidden')) return;
+      menu.classList.add('hidden');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+      if (chev) chev.style.transform = 'rotate(0deg)';
+    }
+
+    function updateFontScaleUI() {
+      const scale = appState.fontScale || 'md';
+      document.documentElement.setAttribute('data-font-scale', scale);
+      const lbl = document.getElementById('lbl-font-scale');
+      const shortMap = { sm: '90%', md: '100%', lg: '112%', xl: '122%' };
+      if (lbl) lbl.textContent = shortMap[scale] || '100%';
+
+      const isRu = appState.lang === 'ru';
+      const optLabels = {
+        sm: isRu ? 'Компактный (90%)' : 'Compact (90%)',
+        md: isRu ? 'Обычный (100%)' : 'Default (100%)',
+        lg: isRu ? 'Крупный (112%)' : 'Large (112%)',
+        xl: isRu ? 'Очень крупный (122%)' : 'Extra Large (122%)'
+      };
+      ['sm', 'md', 'lg', 'xl'].forEach(k => {
+        const el = document.getElementById(`font-opt-${k}-lbl`);
+        if (el) el.textContent = optLabels[k];
+      });
+
+      document.querySelectorAll('[data-font-opt]').forEach(optBtn => {
+        const isSel = optBtn.getAttribute('data-font-opt') === scale;
+        optBtn.classList.toggle('text-isaac-text', isSel);
+        optBtn.classList.toggle('text-isaac-muted', !isSel);
+        const chk = optBtn.querySelector('.font-check');
+        if (chk) chk.classList.toggle('opacity-0', !isSel);
+      });
+    }
+
+    function setFontScale(scale) {
+      if (!['sm', 'md', 'lg', 'xl'].includes(scale)) return;
+      appState.fontScale = scale;
+      updateFontScaleUI();
+      saveState();
+      closeFontDropdown();
+      const namesRu = { sm: 'Шрифт: Компактный (90%)', md: 'Шрифт: Обычный (100%)', lg: 'Шрифт: Крупный (112%)', xl: 'Шрифт: Очень крупный (122%)' };
+      const namesEn = { sm: 'Font: Compact (90%)', md: 'Font: Default (100%)', lg: 'Font: Large (112%)', xl: 'Font: Extra Large (122%)' };
+      showToast(appState.lang === 'ru' ? namesRu[scale] : namesEn[scale]);
+    }
+
+    function renderSyncImportSummary() {
+      const box = document.getElementById('sync-import-summary');
+      if (!box) return;
+      const meta = appState.lastImportMeta;
+      if (!meta) {
+        box.classList.add('hidden');
+        return;
+      }
+      box.classList.remove('hidden');
+      if (appState.lang === 'ru') {
+        box.innerHTML = `<strong class="text-isaac-gold">Последний импорт (${meta.edition}):</strong> ${meta.secretsCount}/641 секретов • <span class="text-isaac-crimson font-semibold">${meta.hardMarks} Hard</span> + <span class="text-isaac-text font-semibold">${meta.normalMarks} Normal</span> меток (всего ${meta.totalMarks}/408).`;
+      } else {
+        box.innerHTML = `<strong class="text-isaac-gold">Last import (${meta.edition}):</strong> ${meta.secretsCount}/641 secrets • <span class="text-isaac-crimson font-semibold">${meta.hardMarks} Hard</span> + <span class="text-isaac-text font-semibold">${meta.normalMarks} Normal</span> marks (${meta.totalMarks}/408 total).`;
+      }
+    }
+
     function openSyncModal() {
       closeLangDropdown();
+      closeFontDropdown();
       const inp = document.getElementById('sync-code-input');
       if (inp) inp.value = '';
+      renderSyncImportSummary();
       document.getElementById('sync-modal').classList.remove('hidden');
     }
 
@@ -4621,12 +4916,11 @@
             PROGRESSION_MAP[charKey].beast = 457 + c;
           });
 
-          const addCharMark = (charKey, markKey) => {
-            if (!charKey || !markKey) return;
-            if (!checklistMarks[charKey]) checklistMarks[charKey] = [];
-            if (!checklistMarks[charKey].includes(markKey)) {
-              checklistMarks[charKey].push(markKey);
-            }
+          const setImportedMark = (charKey, markKey, rawVal) => {
+            if (!charKey || !markKey || rawVal <= 0) return;
+            const level = rawVal >= 2 ? 2 : 1; // 1 = Normal / Greed, 2 = Hard / Greedier
+            if (!checklistMarks[charKey]) checklistMarks[charKey] = {};
+            checklistMarks[charKey][markKey] = Math.max(checklistMarks[charKey][markKey] || 0, level);
           };
 
           // Разбор 11 чанков со смещения 20; заголовок чанка = 12 байт: [type: int32][byteSize: int32][count: int32]
@@ -4686,7 +4980,7 @@
                   const markMap = PROGRESSION_MAP[charKey];
                   Object.entries(markMap).forEach(([markKey, counterIdx]) => {
                     if (counterIdx < counters.length && counters[counterIdx] > 0) {
-                      addCharMark(charKey, markKey);
+                      setImportedMark(charKey, markKey, counters[counterIdx]);
                     }
                   });
                 });
@@ -4702,6 +4996,7 @@
             return;
           }
 
+          // Chunk 1 из .dat — единственный точный источник открытых секретов (не перезаписываем его!)
           appState.unlockedSecrets = unlocked;
 
           if (parsedCounters) {
@@ -4710,23 +5005,40 @@
             const fallbackMarks = {};
             ALL_641_SECRETS.forEach(s => {
               if (s.syncChar && s.syncMark && unlocked[s.num]) {
-                if (!fallbackMarks[s.syncChar]) fallbackMarks[s.syncChar] = [];
-                if (!fallbackMarks[s.syncChar].includes(s.syncMark)) {
-                  fallbackMarks[s.syncChar].push(s.syncMark);
-                }
+                if (!fallbackMarks[s.syncChar]) fallbackMarks[s.syncChar] = {};
+                const lvl = HARD_ONLY_MARK_KEYS.has(s.syncMark) ? 2 : 1;
+                fallbackMarks[s.syncChar][s.syncMark] = Math.max(fallbackMarks[s.syncChar][s.syncMark] || 0, lvl);
               }
             });
             appState.charMarks = fallbackMarks;
           }
 
+          const secretsCount = Object.keys(unlocked).length;
+          let hardMarksCount = 0;
+          let normalMarksCount = 0;
+          ALL_CHARACTERS.forEach(c => {
+            const st = countCharMarks(c.id);
+            hardMarksCount += st.hard;
+            normalMarksCount += st.normal;
+          });
+          appState.lastImportMeta = {
+            edition: detectedEdition,
+            hardMarks: hardMarksCount,
+            normalMarks: normalMarksCount,
+            totalMarks: hardMarksCount + normalMarksCount,
+            secretsCount,
+            fileName: file.name || 'persistentgamedata.dat'
+          };
+
           saveState();
           renderAllSections();
+          renderSyncImportSummary();
           closeSyncModal();
 
-          const secretsCount = Object.keys(unlocked).length;
-          let totalMarksCount = 0;
-          Object.values(appState.charMarks).forEach(arr => { totalMarksCount += arr.length; });
-          showToast(`${detectedEdition}: ${totalMarksCount}/408 • ${secretsCount}/641`);
+          const marksDetail = normalMarksCount > 0
+            ? `${hardMarksCount}H + ${normalMarksCount}N`
+            : `${hardMarksCount} Hard`;
+          showToast(`${detectedEdition}: ${marksDetail} • ${secretsCount}/641`);
         } catch (e) {
           showToast(T('toastSyncError'));
         }
@@ -4739,6 +5051,7 @@
     // =========================================================================
     function toggleLangDropdown(e) {
       if (e) e.stopPropagation();
+      closeFontDropdown();
       const menu = document.getElementById('lang-dropdown-menu');
       const btn = document.getElementById('lang-dropdown-btn');
       const chev = document.getElementById('lang-dropdown-chevron');
@@ -4793,6 +5106,7 @@
       document.documentElement.lang = appState.lang;
       document.title = T('docTitle');
       updateLangDropdownUI();
+      updateFontScaleUI();
 
       const el = (id) => document.getElementById(id);
       el('header-subtitle').textContent = T('headerSub');
@@ -4885,16 +5199,34 @@
     }
 
     function updateGlobalCounters() {
-      let normalTotal = 0;
-      BASE_CHARACTERS.forEach(c => { normalTotal += (appState.charMarks[c.id] || []).length; });
+      let normalPoolTotal = 0;
+      let totalHard = 0;
+      let totalNormalMode = 0;
+      BASE_CHARACTERS.forEach(c => {
+        const st = countCharMarks(c.id);
+        normalPoolTotal += st.total;
+        totalHard += st.hard;
+        totalNormalMode += st.normal;
+      });
       let taintedTotal = 0;
-      TAINTED_CHARACTERS.forEach(c => { taintedTotal += (appState.charMarks[c.id] || []).length; });
+      TAINTED_CHARACTERS.forEach(c => {
+        const st = countCharMarks(c.id);
+        taintedTotal += st.total;
+        totalHard += st.hard;
+        totalNormalMode += st.normal;
+      });
 
-      const totalMarks = normalTotal + taintedTotal;
+      const totalMarks = normalPoolTotal + taintedTotal;
       const totalSecrets = Object.keys(appState.unlockedSecrets).filter(k => appState.unlockedSecrets[k]).length;
       const pct = Math.round((totalSecrets / 641) * 100);
 
-      document.getElementById('global-marks-pill').textContent = `${totalMarks}/408`;
+      const marksPill = document.getElementById('global-marks-pill');
+      marksPill.textContent = totalNormalMode > 0 ? `${totalHard}H+${totalNormalMode}N` : `${totalMarks}/408`;
+      const marksWrap = document.getElementById('marks-pill-wrap');
+      if (marksWrap) {
+        marksWrap.title = `${T('marksTooltip')}: ${totalHard} Hard, ${totalNormalMode} Normal (${totalMarks}/408)`;
+      }
+      const normalTotal = normalPoolTotal;
       document.getElementById('global-secrets-pill').textContent = `${totalSecrets}/641`;
 
       const poolNormalEl = document.getElementById('pool-normal-count');
@@ -4919,6 +5251,7 @@
     function handleDockClick(tabId) {
       if (!VALID_TABS.includes(tabId)) return;
       closeLangDropdown();
+      closeFontDropdown();
 
       if (appState.activeTab === tabId) {
         scrollToActiveTop();
@@ -4974,15 +5307,16 @@
       const poolList = isTaintedPool ? TAINTED_CHARACTERS : BASE_CHARACTERS;
       const select = document.getElementById('character-select');
       select.innerHTML = poolList.map(c => {
-        const count = (appState.charMarks[c.id] || []).length;
-        return `<option value="${c.id}" ${appState.selectedChar === c.id ? 'selected' : ''}>${c.name} — ${count}/12</option>`;
+        const st = countCharMarks(c.id);
+        const suffix = st.normal > 0 ? `${st.hard}H+${st.normal}N / 12` : `${st.total}/12`;
+        return `<option value="${c.id}" ${appState.selectedChar === c.id ? 'selected' : ''}>${c.name} — ${suffix}</option>`;
       }).join('');
 
-      const activeMarksCount = (appState.charMarks[appState.selectedChar] || []).length;
-      document.getElementById('selected-char-avatar').innerHTML = renderIcon(appState.selectedChar, 26);
-      document.getElementById('selected-char-progress').textContent = `${activeMarksCount}/12`;
+      const activeStats = countCharMarks(appState.selectedChar);
+      document.getElementById('selected-char-avatar').innerHTML = renderIcon(appState.selectedChar, 28);
+      document.getElementById('selected-char-progress').textContent = `${activeStats.total}/12`;
       document.getElementById('btn-complete-all').textContent =
-        activeMarksCount === COMPLETION_MARKS.length ? T('completeAllRemove') : T('completeAll');
+        activeStats.hard === COMPLETION_MARKS.length ? T('completeAllRemove') : T('completeAll');
 
       const traitBox = document.getElementById('hero-trait-box');
       if (traitBox) {
@@ -4994,28 +5328,41 @@
     function renderPostItNote() {
       const charObj = ALL_CHARACTERS.find(c => c.id === appState.selectedChar) || BASE_CHARACTERS[0];
       const isTainted = charObj.id.startsWith('t_');
-      const activeMarks = appState.charMarks[charObj.id] || [];
+      const stats = countCharMarks(charObj.id);
       const currentRunObj = OPTIMAL_RUNS.find(r => r.id === appState.selectedRun);
       const highlightedSet = new Set(currentRunObj ? currentRunObj.marks : []);
 
       document.getElementById('postit-char-name').textContent = charObj.name;
       document.getElementById('postit-tainted-pill').classList.toggle('hidden', !isTainted);
-      document.getElementById('postit-counter').textContent = `${activeMarks.length} / 12`;
+      document.getElementById('postit-counter').textContent = `${stats.total} / 12`;
+
+      const breakdownEl = document.getElementById('postit-mode-breakdown');
+      if (breakdownEl) {
+        breakdownEl.textContent = stats.total > 0 ? `(${stats.hard}H • ${stats.normal}N)` : '';
+      }
 
       const grid = document.getElementById('marks-grid');
       grid.innerHTML = COMPLETION_MARKS.map(mark => {
-        const isCompleted = activeMarks.includes(mark.id);
+        const level = getMarkLevel(charObj.id, mark.id);
         const isHighlighted = highlightedSet.has(mark.id);
+        const stateCls = level === 2 ? 'completed-hard' : level === 1 ? 'completed-normal' : '';
+        const iconColor = level === 2 ? 'text-[#cc3030]' : level === 1 ? 'text-[#211b16]' : 'text-isaac-ink/45';
+        const badgeText = level === 2 ? 'H' : level === 1 ? 'N' : '';
+        const modeTitle = level === 2
+          ? (mark.id === 'greedier' ? 'Greedier (Hard)' : 'Hard Mode')
+          : level === 1
+            ? (mark.id === 'greedier' ? 'Greed (Normal)' : 'Normal Mode')
+            : '';
 
         return `
-          <button type="button" onclick="toggleMark('${mark.id}')"
-            class="mark-cell ${isCompleted ? 'completed' : ''} ${isHighlighted ? 'highlighted' : ''}">
-            <span class="mark-check">✓</span>
-            <div class="${isCompleted ? 'text-isaac-crimson' : 'text-isaac-ink/65'}">
-              ${renderIcon(mark.icon, 22)}
+          <button type="button" onclick="toggleMark('${mark.id}')" title="${mark.label}${modeTitle ? ' — ' + modeTitle : ''}"
+            class="mark-cell ${stateCls} ${isHighlighted ? 'highlighted' : ''}">
+            <span class="mark-badge">${badgeText}</span>
+            <div class="${iconColor}">
+              ${renderIcon(mark.icon, 25)}
             </div>
-            <span class="text-[10px] font-bold leading-tight mt-1 text-isaac-ink">${mark.label}</span>
-            <span class="font-mono text-[8.5px] font-medium leading-none text-isaac-ink/65 mt-0.5">${L(mark.sub)}</span>
+            <span class="text-[13.5px] font-bold leading-tight mt-1 text-isaac-ink">${mark.label}</span>
+            <span class="font-mono text-xs font-medium leading-none text-isaac-ink/70 mt-0.5">${L(mark.sub)}</span>
           </button>
         `;
       }).join('');
@@ -5023,19 +5370,20 @@
 
     function toggleMark(markId) {
       const charId = appState.selectedChar;
-      const list = appState.charMarks[charId] || [];
-      const idx = list.indexOf(markId);
-      const sNum = SYNC_KEY_TO_SECRET_NUM[`${charId}:${markId}`];
+      const cur = getMarkLevel(charId, markId);
+      // Цикл: Пусто (0) -> Hard (2) -> Normal (1) -> Пусто (0)
+      const next = cur === 0 ? 2 : cur === 2 ? 1 : 0;
+      setMarkLevel(charId, markId, next);
 
-      if (idx > -1) {
-        list.splice(idx, 1);
-        if (sNum) delete appState.unlockedSecrets[sNum];
-      } else {
-        list.push(markId);
-        if (sNum) appState.unlockedSecrets[sNum] = true;
+      const sNum = SYNC_KEY_TO_SECRET_NUM[`${charId}:${markId}`];
+      if (sNum) {
+        if (doesMarkUnlockSecret(markId, next)) {
+          appState.unlockedSecrets[sNum] = true;
+        } else {
+          delete appState.unlockedSecrets[sNum];
+        }
       }
 
-      appState.charMarks[charId] = list;
       saveState();
       renderCharacterBar();
       renderPostItNote();
@@ -5045,19 +5393,19 @@
 
     function completeAllCharMarks() {
       const charId = appState.selectedChar;
-      const current = appState.charMarks[charId] || [];
-      const isFull = current.length === COMPLETION_MARKS.length;
+      const stats = countCharMarks(charId);
+      const isFullHard = stats.hard === COMPLETION_MARKS.length;
 
-      if (isFull) {
-        appState.charMarks[charId] = [];
+      if (isFullHard) {
+        appState.charMarks[charId] = {};
         COMPLETION_MARKS.forEach(m => {
           const sNum = SYNC_KEY_TO_SECRET_NUM[`${charId}:${m.id}`];
           if (sNum) delete appState.unlockedSecrets[sNum];
         });
         showToast(T('toastMarksCleared'));
       } else {
-        appState.charMarks[charId] = COMPLETION_MARKS.map(m => m.id);
         COMPLETION_MARKS.forEach(m => {
+          setMarkLevel(charId, m.id, 2);
           const sNum = SYNC_KEY_TO_SECRET_NUM[`${charId}:${m.id}`];
           if (sNum) appState.unlockedSecrets[sNum] = true;
         });
@@ -5072,33 +5420,33 @@
     }
 
     function renderRuns() {
-      const charMarks = appState.charMarks[appState.selectedChar] || [];
+      const charId = appState.selectedChar;
       const activeRun = appState.selectedRun != null
         ? OPTIMAL_RUNS.find(r => r.id === appState.selectedRun)
         : null;
 
       const batchBar = document.getElementById('run-batch-bar');
       if (!activeRun) {
-        batchBar.className = 'rounded-xl bg-white/[0.02] border border-white/[0.07] px-3 flex items-center justify-between gap-2 h-[54px] overflow-hidden';
+        batchBar.className = 'rounded-xl bg-white/[0.02] border border-white/[0.07] px-3.5 flex items-center justify-between gap-2 min-h-[58px] py-2 overflow-hidden';
         batchBar.innerHTML = `
           <div class="min-w-0">
-            <span class="block text-[10px] font-semibold uppercase tracking-wider text-isaac-muted">${T('runNoneSelected')}</span>
-            <span class="block text-xs text-isaac-muted truncate">${T('runNoneHint')}</span>
+            <span class="block text-xs font-semibold uppercase tracking-wider text-isaac-muted">${T('runNoneSelected')}</span>
+            <span class="block text-sm text-isaac-muted truncate">${T('runNoneHint')}</span>
           </div>
         `;
       } else {
-        const activeDone = activeRun.marks.filter(m => charMarks.includes(m)).length;
+        const activeDone = activeRun.marks.filter(m => getMarkLevel(charId, m) > 0).length;
         const activeAllDone = activeDone === activeRun.marks.length;
 
-        batchBar.className = 'rounded-xl bg-white/[0.03] border border-isaac-gold/35 px-3 flex items-center justify-between gap-2 h-[54px] overflow-hidden';
+        batchBar.className = 'rounded-xl bg-white/[0.03] border border-isaac-gold/35 px-3.5 flex items-center justify-between gap-2 min-h-[58px] py-2 overflow-hidden';
         batchBar.innerHTML = `
           <div class="min-w-0">
-            <span class="block text-[10px] font-semibold uppercase tracking-wider text-isaac-gold">${T('runSelected')}: ${L(activeRun.short)}</span>
-            <span class="block text-xs font-semibold text-isaac-text truncate">${T('runTargets')}: ${activeDone} ${T('of')} ${activeRun.marks.length}</span>
+            <span class="block text-xs font-semibold uppercase tracking-wider text-isaac-gold">${T('runSelected')}: ${L(activeRun.short)}</span>
+            <span class="block text-sm font-semibold text-isaac-text truncate">${T('runTargets')}: ${activeDone} ${T('of')} ${activeRun.marks.length}</span>
           </div>
           <div class="shrink-0 flex items-center gap-1.5">
             <button type="button" onclick="completeEntireRun(${activeRun.id})"
-              class="h-8 px-2.5 sm:px-3 rounded-lg text-xs font-semibold border transition-colors ${
+              class="h-9 px-3 rounded-lg text-xs font-semibold border transition-colors ${
                 activeAllDone
                   ? 'bg-isaac-gold/15 border-isaac-gold/50 text-isaac-gold'
                   : 'bg-isaac-crimson border-isaac-crimson text-isaac-text'
@@ -5106,7 +5454,7 @@
               ${activeAllDone ? T('runRemove') : T('runComplete')}
             </button>
             <button type="button" onclick="clearSelectedRun()" title="${T('runClearSel')}"
-              class="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/[0.1] text-isaac-muted hover:text-isaac-text flex items-center justify-center font-mono text-xs">
+              class="w-9 h-9 rounded-lg bg-white/[0.05] border border-white/[0.1] text-isaac-muted hover:text-isaac-text flex items-center justify-center font-mono text-xs">
               ✕
             </button>
           </div>
@@ -5116,20 +5464,20 @@
       const container = document.getElementById('runs-list');
       container.innerHTML = OPTIMAL_RUNS.map(run => {
         const isSelected = appState.selectedRun === run.id;
-        const doneCount = run.marks.filter(m => charMarks.includes(m)).length;
+        const doneCount = run.marks.filter(m => getMarkLevel(charId, m) > 0).length;
         const allDone = doneCount === run.marks.length;
 
         return `
           <div onclick="selectRun(${run.id})" class="run-row cursor-pointer ${isSelected ? 'selected' : ''}">
             <div class="flex items-center justify-between gap-2 mb-1">
-              <span class="text-xs font-semibold text-isaac-text leading-snug">${L(run.title)}</span>
-              <span class="shrink-0 font-mono text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.07] tabular-nums ${
+              <span class="text-[15px] font-semibold text-isaac-text leading-snug">${L(run.title)}</span>
+              <span class="shrink-0 font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.07] tabular-nums ${
                 allDone ? 'text-isaac-gold border-isaac-gold/40' : 'text-isaac-muted'
               }">
                 ${doneCount}/${run.marks.length} • ${L(run.badge)}
               </span>
             </div>
-            <p class="text-xs text-isaac-muted leading-relaxed">${L(run.desc)}</p>
+            <p class="text-sm text-isaac-muted leading-relaxed">${L(run.desc)}</p>
           </div>
         `;
       }).join('');
@@ -5154,26 +5502,23 @@
       if (!run) return;
       appState.selectedRun = runId;
       const charId = appState.selectedChar;
-      const current = new Set(appState.charMarks[charId] || []);
-      const allDone = run.marks.every(m => current.has(m));
+      const allDone = run.marks.every(m => getMarkLevel(charId, m) > 0);
 
       if (allDone) {
         run.marks.forEach(m => {
-          current.delete(m);
+          setMarkLevel(charId, m, 0);
           const sNum = SYNC_KEY_TO_SECRET_NUM[`${charId}:${m}`];
           if (sNum) delete appState.unlockedSecrets[sNum];
         });
         showToast(T('toastRunCleared'));
       } else {
         run.marks.forEach(m => {
-          current.add(m);
+          setMarkLevel(charId, m, 2);
           const sNum = SYNC_KEY_TO_SECRET_NUM[`${charId}:${m}`];
           if (sNum) appState.unlockedSecrets[sNum] = true;
         });
         showToast(T('toastRunDone'));
       }
-
-      appState.charMarks[charId] = Array.from(current);
       saveState();
       renderCharacterBar();
       renderPostItNote();
@@ -5200,11 +5545,11 @@
       box.innerHTML = `
         <div class="flex items-center justify-between gap-2 flex-wrap">
           <h3 class="text-xs font-semibold text-isaac-gold">${L(data.title)}</h3>
-          <span class="font-mono text-[10px] font-medium px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.07] text-isaac-text">
+          <span class="font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.07] text-isaac-text">
             ${L(data.req)}
           </span>
         </div>
-        <p class="text-xs text-isaac-muted leading-relaxed">${L(data.desc)}</p>
+        <p class="text-sm text-isaac-muted leading-relaxed">${L(data.desc)}</p>
       `;
     }
 
@@ -5220,7 +5565,7 @@
 
     function confirmResetCharacter() {
       const charId = appState.selectedChar;
-      appState.charMarks[charId] = [];
+      appState.charMarks[charId] = {};
       COMPLETION_MARKS.forEach(m => {
         const sNum = SYNC_KEY_TO_SECRET_NUM[`${charId}:${m.id}`];
         if (sNum) delete appState.unlockedSecrets[sNum];
@@ -5269,7 +5614,7 @@
         const active = appState.floorFilter === cat.id;
         return `
           <button type="button" onclick="setFloorFilter('${cat.id}')"
-            class="shrink-0 h-8 px-3 rounded-full text-xs font-medium transition-colors ${
+            class="shrink-0 h-9 px-3.5 rounded-full text-[13px] font-medium transition-colors ${
               active
                 ? 'bg-isaac-text text-isaac-bg font-semibold'
                 : 'bg-white/[0.04] text-isaac-muted hover:text-isaac-text'
@@ -5294,16 +5639,16 @@
               ${renderIcon(fl.icon, 22)}
             </div>
             <div class="min-w-0">
-              <span class="inline-block font-mono text-[10px] font-semibold text-isaac-gold">${L(fl.badge)}</span>
-              <h3 class="text-xs sm:text-[13px] font-semibold text-isaac-text leading-snug">${L(fl.title)}</h3>
+              <span class="inline-block font-mono text-xs font-semibold text-isaac-gold">${L(fl.badge)}</span>
+              <h3 class="text-[15px] sm:text-base font-semibold text-isaac-text leading-snug">${L(fl.title)}</h3>
             </div>
           </div>
 
-          <p class="text-xs text-isaac-text/90 leading-relaxed border-t border-white/[0.06] pt-2.5">
+          <p class="text-sm text-isaac-text/90 leading-relaxed border-t border-white/[0.06] pt-2.5">
             <strong class="text-isaac-gold">${featLbl}</strong> ${L(fl.features)}
           </p>
 
-          <ul class="space-y-1.5 text-xs text-isaac-muted leading-relaxed border-t border-white/[0.06] pt-2.5">
+          <ul class="space-y-1.5 text-sm text-isaac-muted leading-relaxed border-t border-white/[0.06] pt-2.5">
             ${L(fl.actions).map(act => `<li class="flex items-start gap-2"><span class="text-isaac-crimson font-bold shrink-0">•</span><span>${act}</span></li>`).join('')}
           </ul>
         </article>
@@ -5353,7 +5698,7 @@
                 ? 'bg-isaac-gold/[0.06] border-isaac-gold/35 text-isaac-muted line-through'
                 : 'bg-white/[0.02] border-white/[0.06] text-isaac-text'
             }">
-            <span class="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 font-mono text-[11px] ${
+            <span class="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 font-mono text-[13px] ${
               done ? 'bg-isaac-gold border-isaac-gold text-isaac-bg font-bold' : 'border-white/15 text-transparent'
             }">✓</span>
             <span class="text-xs leading-snug">${L(step.text)}</span>
@@ -5368,7 +5713,7 @@
         const active = appState.roomFilter === cat.id;
         return `
           <button type="button" onclick="setRoomFilter('${cat.id}')"
-            class="shrink-0 h-8 px-3 rounded-full text-xs font-medium transition-colors ${
+            class="shrink-0 h-9 px-3.5 rounded-full text-[13px] font-medium transition-colors ${
               active
                 ? 'bg-isaac-text text-isaac-bg font-semibold'
                 : 'bg-white/[0.04] text-isaac-muted hover:text-isaac-text'
@@ -5396,9 +5741,9 @@
               <div class="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center shrink-0">
                 ${renderIcon(room.icon, 22)}
               </div>
-              <h3 class="text-xs sm:text-[13px] font-semibold text-isaac-text leading-snug">${L(room.name)}</h3>
+              <h3 class="text-[15px] sm:text-base font-semibold text-isaac-text leading-snug">${L(room.name)}</h3>
             </div>
-            <span class="shrink-0 font-mono text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.07] text-isaac-gold">
+            <span class="shrink-0 font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.07] text-isaac-gold">
               ${L(room.cost)}
             </span>
           </div>
@@ -5407,7 +5752,7 @@
             <p><span class="font-semibold text-isaac-gold">${T('roomHow')}</span> <span class="text-isaac-muted">${L(room.how)}</span></p>
             <p><span class="font-semibold text-isaac-text">${T('roomInside')}</span> <span class="text-isaac-muted">${L(room.inside)}</span></p>
             ${room.diceTable ? `
-              <div class="grid grid-cols-2 gap-1.5 bg-black/35 border border-white/[0.06] rounded-xl p-2 font-mono text-[10.5px] my-1">
+              <div class="grid grid-cols-2 gap-1.5 bg-black/35 border border-white/[0.06] rounded-xl p-2 font-mono text-xs my-1">
                 ${diceLabels.map((lbl, idx) => `<div><strong class="${idx === 5 ? 'text-isaac-crimson' : 'text-isaac-gold'}">${lbl.split(':')[0]}:</strong>${lbl.split(':')[1]}</div>`).join('')}
               </div>
             ` : ''}
@@ -5528,7 +5873,7 @@
         const active = appState.codexFilter === cat.id;
         return `
           <button type="button" onclick="setCodexFilter('${cat.id}')"
-            class="shrink-0 h-8 px-3 rounded-full text-xs font-medium transition-colors ${
+            class="shrink-0 h-9 px-3.5 rounded-full text-[13px] font-medium transition-colors ${
               active
                 ? 'bg-isaac-text text-isaac-bg font-semibold'
                 : 'bg-white/[0.04] text-isaac-muted hover:text-isaac-text'
@@ -5578,8 +5923,8 @@
       if (slice.length === 0) {
         list.innerHTML = `
           <div class="md:col-span-2 m-card p-6 text-center space-y-1.5">
-            <p class="text-xs font-semibold text-isaac-text">${T('nothingFound')}</p>
-            <p class="text-xs text-isaac-muted">${T('nothingFoundSub')}</p>
+            <p class="text-[15px] font-semibold text-isaac-text">${T('nothingFound')}</p>
+            <p class="text-sm text-isaac-muted">${T('nothingFoundSub')}</p>
           </div>
         `;
       } else {
@@ -5593,23 +5938,23 @@
                       ${renderIcon(item.icon, 22)}
                     </div>
                     <div class="min-w-0">
-                      <span class="block font-mono text-[10px] font-semibold text-isaac-gold">${L(item.badge)}</span>
-                      <h3 class="text-xs sm:text-[13px] font-bold text-isaac-text leading-snug">${L(item.title)}</h3>
+                      <span class="block font-mono text-xs font-semibold text-isaac-gold">${L(item.badge)}</span>
+                      <h3 class="text-[15px] sm:text-base font-bold text-isaac-text leading-snug">${L(item.title)}</h3>
                     </div>
                   </div>
-                  <span class="shrink-0 font-mono text-[10px] font-semibold px-2 py-0.5 rounded-md bg-isaac-crimson/15 text-isaac-crimson">
+                  <span class="shrink-0 font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-isaac-crimson/15 text-isaac-crimson">
                     ${L(item.code)}
                   </span>
                 </div>
 
-                <p class="text-xs text-isaac-text/95 leading-relaxed border-t border-white/[0.06] pt-2">
+                <p class="text-sm text-isaac-text/95 leading-relaxed border-t border-white/[0.06] pt-2">
                   ${L(item.effect)}
                 </p>
 
                 <div class="border-t border-white/[0.06] pt-2 space-y-1.5">
-                  <span class="block text-[10.5px] font-medium text-isaac-muted">${neededLbl}</span>
+                  <span class="block text-xs font-medium text-isaac-muted">${neededLbl}</span>
                   <div class="flex flex-wrap gap-1">
-                    ${item.itemsList.map(itName => `<span class="font-mono text-[10px] px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-isaac-text/90">${itName}</span>`).join('')}
+                    ${item.itemsList.map(itName => `<span class="font-mono text-xs px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-isaac-text/90">${itName}</span>`).join('')}
                   </div>
                 </div>
               </article>
@@ -5625,15 +5970,15 @@
                   </div>
                   <div class="min-w-0">
                     <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-isaac-crimson/15 text-isaac-crimson">
+                      <span class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded bg-isaac-crimson/15 text-isaac-crimson">
                         ${L(item.code)}
                       </span>
-                      <span class="font-mono text-[10px] font-medium text-isaac-gold">${L(item.badge)}</span>
+                      <span class="font-mono text-xs font-medium text-isaac-gold">${L(item.badge)}</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-semibold text-isaac-text leading-snug mt-1">${L(item.title)}</h3>
+                    <h3 class="text-sm sm:text-base font-semibold text-isaac-text leading-snug mt-1">${L(item.title)}</h3>
                   </div>
                 </div>
-                <ul class="space-y-1.5 text-xs text-isaac-muted border-t border-white/[0.06] pt-2.5 leading-relaxed">
+                <ul class="space-y-1.5 text-sm text-isaac-muted border-t border-white/[0.06] pt-2.5 leading-relaxed">
                   ${L(item.bodyHtml).map(p => `<li class="flex items-start gap-2"><span class="text-isaac-gold shrink-0">▸</span><span>${p}</span></li>`).join('')}
                 </ul>
               </article>
@@ -5648,13 +5993,13 @@
               </div>
               <div class="flex-1 min-w-0 space-y-1">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded ${codeColor} tabular-nums">
+                  <span class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded ${codeColor} tabular-nums">
                     ${L(item.code)}
                   </span>
-                  <span class="font-mono text-[10px] font-medium text-isaac-muted truncate">${L(item.badge)}</span>
+                  <span class="font-mono text-xs font-medium text-isaac-muted truncate">${L(item.badge)}</span>
                 </div>
-                <h3 class="text-xs font-semibold text-isaac-text leading-snug">${L(item.title)}</h3>
-                <p class="text-[11.5px] text-isaac-muted leading-relaxed">${L(item.desc)}</p>
+                <h3 class="text-[15px] font-semibold text-isaac-text leading-snug">${L(item.title)}</h3>
+                <p class="text-[13.5px] text-isaac-muted leading-relaxed">${L(item.desc)}</p>
               </div>
             </article>
           `;
@@ -5735,14 +6080,13 @@
       }
 
       if (secretObj.syncChar && secretObj.syncMark) {
-        const list = appState.charMarks[secretObj.syncChar] || [];
-        const idx = list.indexOf(secretObj.syncMark);
-        if (nextState && idx === -1) {
-          list.push(secretObj.syncMark);
-        } else if (!nextState && idx > -1) {
-          list.splice(idx, 1);
+        if (nextState) {
+          const cur = getMarkLevel(secretObj.syncChar, secretObj.syncMark);
+          const targetLvl = HARD_ONLY_MARK_KEYS.has(secretObj.syncMark) ? 2 : Math.max(cur, 2);
+          setMarkLevel(secretObj.syncChar, secretObj.syncMark, targetLvl);
+        } else {
+          setMarkLevel(secretObj.syncChar, secretObj.syncMark, 0);
         }
-        appState.charMarks[secretObj.syncChar] = list;
       }
 
       saveState();
@@ -5766,7 +6110,7 @@
         const active = appState.secretFilter === cat.id;
         return `
           <button type="button" onclick="setSecretFilter('${cat.id}')"
-            class="shrink-0 h-8 px-3 rounded-full text-xs font-medium transition-colors ${
+            class="shrink-0 h-9 px-3.5 rounded-full text-[13px] font-medium transition-colors ${
               active
                 ? 'bg-isaac-text text-isaac-bg font-semibold'
                 : 'bg-white/[0.04] text-isaac-muted hover:text-isaac-text'
@@ -5779,8 +6123,8 @@
       const hideBtn = document.getElementById('btn-toggle-hide-unlocked');
       hideBtn.textContent = appState.hideUnlockedSecrets ? T('hideUnlockedOn') : T('hideUnlockedOff');
       hideBtn.className = appState.hideUnlockedSecrets
-        ? 'h-7 px-2.5 rounded-lg text-[11px] font-semibold border bg-isaac-crimson/15 border-isaac-crimson/40 text-isaac-text'
-        : 'h-7 px-2.5 rounded-lg text-[11px] font-medium border bg-white/[0.04] border-white/[0.08] text-isaac-muted';
+        ? 'min-h-8 py-1.5 px-3 rounded-lg text-xs font-semibold border bg-isaac-crimson/15 border-isaac-crimson/40 text-isaac-text whitespace-nowrap shrink-0'
+        : 'min-h-8 py-1.5 px-3 rounded-lg text-xs font-medium border bg-white/[0.04] border-white/[0.08] text-isaac-muted whitespace-nowrap shrink-0';
 
       const q = (appState.secretSearch || '').trim().toLowerCase();
       const filtered = ALL_641_SECRETS.filter(s => {
@@ -5810,8 +6154,8 @@
       if (slice.length === 0) {
         list.innerHTML = `
           <div class="md:col-span-2 m-card p-6 text-center space-y-1.5">
-            <p class="text-xs font-semibold text-isaac-text">${T('nothingFound')}</p>
-            <p class="text-xs text-isaac-muted">${T('nothingFoundSub')}</p>
+            <p class="text-[15px] font-semibold text-isaac-text">${T('nothingFound')}</p>
+            <p class="text-sm text-isaac-muted">${T('nothingFoundSub')}</p>
           </div>
         `;
       } else {
@@ -5829,20 +6173,20 @@
               </div>
               <div class="flex-1 min-w-0 space-y-1">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white/[0.04] text-isaac-gold tabular-nums">
+                  <span class="font-mono text-xs font-semibold px-1.5 py-0.5 rounded bg-white/[0.04] text-isaac-gold tabular-nums">
                     ${s.code}
                   </span>
-                  ${isSynced ? `<span class="font-mono text-[9px] font-medium px-1.5 py-0.5 rounded bg-isaac-crimson/15 text-isaac-crimson">${T('syncedSheet')}</span>` : ''}
+                  ${isSynced ? `<span class="font-mono text-[13px] font-medium px-1.5 py-0.5 rounded bg-isaac-crimson/15 text-isaac-crimson">${T('syncedSheet')}</span>` : ''}
                 </div>
-                <div class="text-xs font-semibold leading-snug ${unlocked ? 'text-isaac-muted line-through' : 'text-isaac-text'}">
+                <div class="text-[15px] font-semibold leading-snug ${unlocked ? 'text-isaac-muted line-through' : 'text-isaac-text'}">
                   ${L(s.title)}
                 </div>
-                <div class="text-[11.5px] font-medium text-isaac-gold leading-snug">
+                <div class="text-[13.5px] font-medium text-isaac-gold leading-snug">
                   → ${L(s.reward)}
                 </div>
-                <p class="text-[11px] text-isaac-muted leading-relaxed">${L(s.desc)}</p>
+                <p class="text-[13px] text-isaac-muted leading-relaxed">${L(s.desc)}</p>
               </div>
-              <div class="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 font-mono text-[11px] ${
+              <div class="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 font-mono text-[13px] ${
                 unlocked
                   ? 'bg-isaac-gold border-isaac-gold text-isaac-bg font-bold'
                   : 'border-white/15 text-transparent'
@@ -5876,8 +6220,8 @@
             ${renderIcon(rule.icon, 20)}
           </div>
           <div>
-            <div class="text-xs font-semibold text-isaac-text mb-0.5">${L(rule.title)}</div>
-            <p class="text-xs text-isaac-muted leading-relaxed">${L(rule.desc)}</p>
+            <div class="text-[15px] font-semibold text-isaac-text mb-0.5">${L(rule.title)}</div>
+            <p class="text-sm text-isaac-muted leading-relaxed">${L(rule.desc)}</p>
           </div>
         </div>
       `).join('');
@@ -5892,14 +6236,14 @@
             <div class="min-w-0 flex-1">
               <div class="flex items-center justify-between gap-2">
                 <h3 class="text-sm font-semibold text-isaac-text truncate">${boss.name}</h3>
-                <span class="shrink-0 font-mono text-[10px] font-medium px-2 py-0.5 rounded-md bg-isaac-crimson/15 text-isaac-crimson">
+                <span class="shrink-0 font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-isaac-crimson/15 text-isaac-crimson">
                   ${L(boss.threat)}
                 </span>
               </div>
-              <span class="text-[11px] text-isaac-gold block truncate mt-0.5">${L(boss.location)}</span>
+              <span class="text-[13px] text-isaac-gold block truncate mt-0.5">${L(boss.location)}</span>
             </div>
           </div>
-          <ul class="space-y-1.5 text-xs text-isaac-muted border-t border-white/[0.06] pt-2.5 leading-relaxed">
+          <ul class="space-y-1.5 text-sm text-isaac-muted border-t border-white/[0.06] pt-2.5 leading-relaxed">
             ${L(boss.tips).map(t => `<li class="flex items-start gap-2"><span class="text-isaac-gold shrink-0">•</span><span>${t}</span></li>`).join('')}
           </ul>
         </article>
@@ -5931,18 +6275,24 @@
 
       try {
         loadState();
+        updateFontScaleUI();
         applyStaticTranslations();
 
         document.addEventListener('click', (e) => {
-          const wrap = document.getElementById('lang-dropdown-wrap');
-          if (wrap && !wrap.contains(e.target)) {
+          const langWrap = document.getElementById('lang-dropdown-wrap');
+          if (langWrap && !langWrap.contains(e.target)) {
             closeLangDropdown();
+          }
+          const fontWrap = document.getElementById('font-dropdown-wrap');
+          if (fontWrap && !fontWrap.contains(e.target)) {
+            closeFontDropdown();
           }
         });
 
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
             closeLangDropdown();
+            closeFontDropdown();
             closeResetModal();
             closeSyncModal();
           }
